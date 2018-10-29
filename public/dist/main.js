@@ -432,7 +432,8 @@ function eachFeature(ressource) {
       layer.bindPopup(danLabel(ressource,feature.properties.id, feature.properties.vejnavn + " " + feature.properties.husnr + ", " + (feature.properties.supplerendebynavn?feature.properties.supplerendebynavn+", ":"") + feature.properties.postnr + " " + feature.properties.postnrnavn));
       break;
     case 'adgangsadresser': 
-      layer.bindPopup(danLabel(ressource, feature.properties.id,feature.properties.vejnavn + " " + feature.properties.husnr + ", " + (feature.properties.supplerendebynavn?feature.properties.supplerendebynavn+", ":"") + feature.properties.postnr + " " + feature.properties.postnrnavn));
+      layer.bindPopup(danLabel(ressource, feature.properties.id,feature.properties.vejnavn + " " + feature.properties.husnr + ", " + (feature.properties.supplerendebynavn?feature.properties.supplerendebynavn+", ":"") + feature.properties.postnr + " " + feature.properties.postnrnavn)); 
+      var marker= L.circleMarker(L.latLng(feature.properties.vejpunkt_y, feature.properties.vejpunkt_x),{color: 'blue', fill: true, fillcolor: 'blue', fillOpacity: 1.0, radius: 2}).addTo(map);      
       break;      
     case 'stednavne':  
       layer.bindPopup(danLabel(ressource, feature.properties.id, feature.properties.navn + '<br>(' +  feature.properties.hovedtype  + ', ' + feature.properties.undertype + ")"));
@@ -481,9 +482,15 @@ function getDefaultStyle(ressource) {
       break;    
     case 'postnumre':  
       break;
-    case 'adresser': 
-      break;
-    case 'adgangsadresser': 
+    case 'adresser':
+    case 'adgangsadresser':
+      style.color= "red";
+      style.opacity= 1.0;
+      style.weight= 1;
+      style.fill= true;
+      style.fillColor= 'red';
+      style.fillOpacity= 1.0;
+      style.radius= 5; 
       break;      
     case 'stednavne': 
     case 'stednavne2':  
