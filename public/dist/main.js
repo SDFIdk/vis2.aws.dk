@@ -400,36 +400,57 @@ function danLabel(ressource, id, label) {
   return tekst;
 }
 
+function visVisueltCenter(x,y) {
+  var marker= L.circleMarker(L.latLng(y, x),{color: 'blacl', fill: true, fillcolor: 'black', fillOpacity: 1.0, radius: 3}).addTo(map);
+}
+
 function eachFeature(ressource) {
   return function (feature, layer) {
     switch (ressource) {
+    case 'ejerlav':
+      layer.bindPopup(danLabel(ressource, feature.properties.kode, feature.properties.ejerlavnavn + " (" + feature.properties.kode + ")"));
+      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
+      break;
     case 'jordstykker':
       let kode= feature.properties.ejerlavkode;
+      let navn= feature.properties.ejerlavnavn;
       let nr= feature.properties.matrikelnr;
-      layer.bindPopup(danLabel(ressource, kode + "/" + nr, "Jordstykke: " + kode + " " + nr));
+      layer.bindPopup(danLabel(ressource, kode + "/" + nr, nr + " " + navn + " (" + kode + ")"));
+      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
       break;
     case 'sogne':
     case 'politikredse':
     case 'retskredse':
     case 'regioner':
+    case 'kommuner':
+      layer.bindPopup(danLabel(ressource, feature.properties.kode, feature.properties.kode + " " + feature.properties.navn)); 
+      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
+      break;
+    case 'afstemningsomraader':
+    case 'menighedsraadsafstemningsomraader':
+      layer.bindPopup(danLabel(ressource, feature.properties.kommunekode + "/" + feature.properties.nummer, feature.properties.nummer + " " + feature.properties.navn)); 
+      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y);
+      break;      
     case 'opstillingskredse':
     case 'storkredse':
+      layer.bindPopup(danLabel(ressource, feature.properties.nummer, feature.properties.nummer + " " + feature.properties.navn)); 
+      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
+      break; 
     case 'valglandsdele':
-    case 'afstemningsområder':
-    case 'menighedsrådsafstemningsområder':
-    case 'kommuner':
-      layer.bindPopup(danLabel(ressource, feature.properties.dagi_id, feature.properties.kode + " " + feature.properties.navn));
-      break
-    case 'supplerendebynavne':
-      break;
+      layer.bindPopup(danLabel(ressource, feature.properties.bogstav, feature.properties.bogstav + " " + feature.properties.navn)); 
+      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
+      break;      
     case 'supplerendebynavne2': 
-      layer.bindPopup(danLabel(ressource, feature.properties.dagi_id, feature.properties.navn));
+      layer.bindPopup(danLabel(ressource, feature.properties.dagi_id, feature.properties.navn)); 
+      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
       break;    
     case 'postnumre':  
-      layer.bindPopup(danLabel(ressource, feature.properties.nr, feature.properties.nr + " " + feature.properties.navn));
+      layer.bindPopup(danLabel(ressource, feature.properties.nr, feature.properties.nr + " " + feature.properties.navn)); 
+      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
       break;
     case 'adresser': 
       layer.bindPopup(danLabel(ressource,feature.properties.id, feature.properties.vejnavn + " " + feature.properties.husnr + ", " + (feature.properties.supplerendebynavn?feature.properties.supplerendebynavn+", ":"") + feature.properties.postnr + " " + feature.properties.postnrnavn));
+      var marker= L.circleMarker(L.latLng(feature.properties.vejpunkt_y, feature.properties.vejpunkt_x),{color: 'blue', fill: true, fillcolor: 'blue', fillOpacity: 1.0, radius: 2}).addTo(map);      
       break;
     case 'adgangsadresser': 
       layer.bindPopup(danLabel(ressource, feature.properties.id,feature.properties.vejnavn + " " + feature.properties.husnr + ", " + (feature.properties.supplerendebynavn?feature.properties.supplerendebynavn+", ":"") + feature.properties.postnr + " " + feature.properties.postnrnavn)); 
@@ -437,17 +458,26 @@ function eachFeature(ressource) {
       break;      
     case 'stednavne':  
       layer.bindPopup(danLabel(ressource, feature.properties.id, feature.properties.navn + '<br>(' +  feature.properties.hovedtype  + ', ' + feature.properties.undertype + ")"));
+      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
       break;    
     case 'stednavne2':  
       layer.bindPopup(danLabel(ressource, feature.properties.sted_id + "/" + feature.properties.navn, feature.properties.navn + '<br>(' +  feature.properties.sted_hovedtype  + ', ' + feature.properties.sted_undertype + ")"));    
-      var marker= L.circleMarker(L.latLng(feature.properties.sted_visueltcenter_y, feature.properties.sted_visueltcenter_x)).addTo(map);
+      visVisueltCenter(feature.properties.sted_visueltcenter_x, feature.properties.sted_visueltcenter_y); 
+      break;      
+    case 'steder':  
+      layer.bindPopup(danLabel(ressource, feature.properties.sted_id, feature.properties.primærtnavn + '<br>(' +  feature.properties.hovedtype  + ', ' + feature.properties.undertype + ")"));    
+      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
       break;    
     case 'navngivneveje':   
       layer.bindPopup(danLabel(ressource,feature.properties.id, feature.properties.navn));
+      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
+      break;
+    case 'vejstykker':    
+      layer.bindPopup(danLabel(ressource, feature.properties.kommunekode + "/" + feature.properties.kode, feature.properties.kode + " " + feature.properties.navn)); 
       break;
     default:       
       if (feature.properties.visueltcenter_x && feature.properties.visueltcenter_y) {      
-        var marker= L.circleMarker(L.latLng(feature.properties.visueltcenter_y, feature.properties.visueltcenter_x)).addTo(map);
+        visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
       }
     }
     layer.on('contextmenu', function(e) {map.contextmenu.showAt(e.latlng)}); 
@@ -464,6 +494,9 @@ function getDefaultStyle(ressource) {
     let style= {};
     switch (ressource) {
     case 'jordstykker':
+    case 'ejerlav':
+      style.color= "green";
+      style.fillColor= 'green';
       break;
     case 'sogne':
     case 'politikredse':
@@ -472,15 +505,23 @@ function getDefaultStyle(ressource) {
     case 'opstillingskredse':
     case 'storkredse':
     case 'valglandsdele':
-    case 'afstemningsområder':
-    case 'menighedsrådsafstemningsområder':
+    case 'afstemningsomraader':
+    case 'menighedsraadsafstemningsomraader':
     case 'kommuner':
+      style.color= "green";
+      style.fillColor= 'green';
       break
     case 'supplerendebynavne':
+      style.color= "green";
+      style.fillColor= 'green';
       break;
     case 'supplerendebynavne2': 
+      style.color= "green";
+      style.fillColor= 'green';
       break;    
-    case 'postnumre':  
+    case 'postnumre': 
+      style.color= "green";
+      style.fillColor= 'green'; 
       break;
     case 'adresser':
     case 'adgangsadresser':
@@ -492,10 +533,16 @@ function getDefaultStyle(ressource) {
       style.fillOpacity= 1.0;
       style.radius= 5; 
       break;      
+    case 'steder':  
     case 'stednavne': 
-    case 'stednavne2':  
+    case 'stednavne2':
+      style.color= "green";
+      style.fillColor= 'green';  
       break;    
-    case 'navngivneveje':   
+    case 'navngivneveje':
+    case 'vejstykker':
+      style.color= "blue";
+      style.fillColor= 'blue';   
       break;
     default:
       break;
@@ -536,8 +583,6 @@ function main() {
 }
 
 main();
-
-
 
 /***/ }),
 /* 3 */

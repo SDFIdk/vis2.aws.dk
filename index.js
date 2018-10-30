@@ -16,7 +16,7 @@ app.get('/', function (req, res) {
       res.status(404).end();
     }
     else {
-      console.log('Sent: index.html');
+      console.log('/');
     }
   });
 });
@@ -37,7 +37,7 @@ app.get(/.+/, function (req, res) {
       console.log('fejl: ' + err);
     }
     else {
-      console.log('Sent: index.html');
+      console.log('index.html');
     }
   });
 }); 
