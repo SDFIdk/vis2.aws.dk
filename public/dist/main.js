@@ -455,20 +455,6 @@ var visData= function() {
 function nestet(ressource) {
   let erNestet= false
   switch (ressource) {
-  case 'sogne':
-  case 'politikredse':
-  case 'retskredse':
-  case 'regioner':
-  case 'kommuner':
-  case 'afstemningsomraader':
-  case 'menighedsraadsafstemningsomraader':
-  case 'opstillingskredse':
-  case 'storkredse':
-  case 'valglandsdele':
-  case 'supplerendebynavne2': 
-  case 'postnumre':  
-    erNestet=false;
-    break; 
   default:  
     erNestet=true;
   }
@@ -508,30 +494,35 @@ function eachFeature(ressource) {
     case 'retskredse':
     case 'regioner':
     case 'kommuner':
-      layer.bindPopup(danLabel(ressource, feature.properties.kode, feature.properties.kode + " " + feature.properties.navn)); 
-      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y);
+      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.kode + " " + feature.properties.navn)); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]);
       break;
-    case 'afstemningsomraader':
+    case 'afstemningsomraader': 
+      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.nummer + " " + feature.properties.navn)); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]);
+      var marker= L.circleMarker(L.latLng(feature.properties.afstemningssted.adgangsadresse.koordinater[1], feature.properties.afstemningssted.adgangsadresse.koordinater[0]),{color: 'red', fill: true, fillcolor: 'red', fillOpacity: 1.0, radius: 5}).addTo(map);      
+      marker.bindPopup(danLabel2(feature.properties.afstemningssted.adgangsadresse.href, feature.properties.afstemningssted.adgangsadresse.adressebetegnelse)); 
+      break;
     case 'menighedsraadsafstemningsomraader':
-      layer.bindPopup(danLabel(ressource, feature.properties.kommunekode + "/" + feature.properties.nummer, feature.properties.nummer + " " + feature.properties.navn)); 
-      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y);
+      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.nummer + " " + feature.properties.navn)); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]);
       break;      
     case 'opstillingskredse':
     case 'storkredse':
-      layer.bindPopup(danLabel(ressource, feature.properties.nummer, feature.properties.nummer + " " + feature.properties.navn)); 
-      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
+      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.nummer + " " + feature.properties.navn)); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
       break; 
     case 'valglandsdele':
-      layer.bindPopup(danLabel(ressource, feature.properties.bogstav, feature.properties.bogstav + " " + feature.properties.navn)); 
-      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
+      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.bogstav + " " + feature.properties.navn)); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
       break;      
     case 'supplerendebynavne2': 
-      layer.bindPopup(danLabel(ressource, feature.properties.dagi_id, feature.properties.navn)); 
-      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
+      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.navn)); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
       break;    
     case 'postnumre':  
-      layer.bindPopup(danLabel(ressource, feature.properties.nr, feature.properties.nr + " " + feature.properties.navn)); 
-      visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
+      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.nr + " " + feature.properties.navn)); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
       break;
     case 'adresser': 
       layer.bindPopup(danLabel2(feature.properties.href, feature.properties.adressebetegnelse));
