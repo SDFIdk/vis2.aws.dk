@@ -418,6 +418,9 @@ var visData= function() {
 
   let query= queryString.parse(url.query);
 
+  let overskrift= query.overskrift;
+  let vispopup= query.vispopup;
+
   let miljø= query.m;
   if (!miljø) miljø= 'dawa';
   url.host= url.host.replace('vis',miljø);
@@ -425,7 +428,7 @@ var visData= function() {
   let ressource= arr[1];
 
   query.format= 'geojson';
-  query.geometri= 'begge'; // af hensyn til navngivne vejes vejnavneområder
+  if (ressource === 'navngivneveje') query.geometri= 'begge'; 
   if (nestet(ressource)) {
     query.struktur= 'nestet';
   }
@@ -440,7 +443,7 @@ var visData= function() {
     response.json().then( function ( data ) {
       if (data.type === "FeatureCollection" && data.features.length === 0) return;
       let style=  getDefaultStyle(ressource);
-      var geojsonlayer= L.geoJson(data, {style: style, onEachFeature: eachFeature(ressource), pointToLayer: pointToLayer}); 
+      var geojsonlayer= L.geoJson(data, {style: style, onEachFeature: eachFeature(ressource,overskrift,vispopup), pointToLayer: pointToLayer}); 
       geojsonlayer.addTo(map);
       map.fitBounds(geojsonlayer.getBounds());
        
@@ -461,92 +464,135 @@ function nestet(ressource) {
   return erNestet;
 }
 
-function danLabel2(href, label) {
-  let tekst= "<a target='_blank' href='" + href + "'>" + label + "</a>";
+function danLabel2(overskrift, href, label) {
+  let tekst= "";
+  if (overskrift) {
+    tekst= overskrift + "<br/>" + label;
+  } 
+  else {
+    tekst= "<a target='_blank' href='" + href + "'>" + label + "</a>";
+  }
   return tekst;
 }
 
-function danLabel(ressource, id, label) {
-  let tekst= "<a target='_blank' href='https://dawa.aws.dk/" + ressource + "/" + id + "'>" + label + "</a>";
-  return tekst;
+function visVisueltCenter(x,y,r) {
+  var marker= L.circleMarker(L.latLng(y, x),{color: 'black', fill: true, fillcolor: 'black', fillOpacity: 1.0, radius: r}).addTo(map);
 }
 
-function visVisueltCenter(x,y) {
-  var marker= L.circleMarker(L.latLng(y, x),{color: 'black', fill: true, fillcolor: 'black', fillOpacity: 1.0, radius: 2}).addTo(map);
+function showPopup(vis,x,y,label) {
+  if (vis) {
+    var popup = L.popup()
+      .setLatLng(L.latLng(y,x))
+      .setContent(label)
+      .openOn(map); 
+  }
 }
 
-function eachFeature(ressource) {
+function eachFeature(ressource, overskrift, vispopup) {
   return function (feature, layer) {
+    let label= "";
     switch (ressource) {
     case 'ejerlav':
-      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.navn + " (" + feature.properties.kode + ")"));
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" + feature.properties.kode + ")");
+      layer.bindPopup(label);
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
       break;
     case 'jordstykker':
       let kode= feature.properties.ejerlav.kode;
       let navn= feature.properties.ejerlav.navn;
       let nr= feature.properties.matrikelnr;
-      layer.bindPopup(danLabel2(feature.properties.href, nr + " " + navn + " (" + kode + ")"));
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
+      label= danLabel2(overskrift, feature.properties.href, nr + " " + navn + " (" + kode + ")");
+      layer.bindPopup(label);
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label); 
      break;
     case 'sogne':
     case 'politikredse':
     case 'retskredse':
     case 'regioner':
     case 'kommuner':
-      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.kode + " " + feature.properties.navn)); 
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]);
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" +feature.properties.kode + ")");
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label); 
       break;
     case 'afstemningsomraader': 
-      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.nummer + " " + feature.properties.navn)); 
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]);
-      var marker= L.circleMarker(L.latLng(feature.properties.afstemningssted.adgangsadresse.koordinater[1], feature.properties.afstemningssted.adgangsadresse.koordinater[0]),{color: 'red', fill: true, fillcolor: 'red', fillOpacity: 1.0, radius: 5}).addTo(map);      
-      marker.bindPopup(danLabel2(feature.properties.afstemningssted.adgangsadresse.href, feature.properties.afstemningssted.adgangsadresse.adressebetegnelse)); 
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn);
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
+      map.createPane("locationMarker");
+      map.getPane("locationMarker").style.zIndex = 500;
+      var marker= L.circleMarker(L.latLng(feature.properties.afstemningssted.adgangsadresse.koordinater[1], feature.properties.afstemningssted.adgangsadresse.koordinater[0]),{color: 'red', fill: true, fillcolor: 'red', fillOpacity: 1.0, radius: 3,  pane: "locationMarker" }).addTo(map);      
+      marker.bindPopup(danLabel2(overskrift, feature.properties.afstemningssted.adgangsadresse.href, feature.properties.afstemningssted.navn + "<br/>" + feature.properties.afstemningssted.adgangsadresse.adressebetegnelse.replace(',','<br/>'))); 
       break;
     case 'menighedsraadsafstemningsomraader':
-      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.nummer + " " + feature.properties.navn)); 
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]);
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" +feature.properties.nummer + ")");
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
       break;      
     case 'opstillingskredse':
     case 'storkredse':
-      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.nummer + " " + feature.properties.navn)); 
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" +feature.properties.kode + ")");
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
       break; 
     case 'valglandsdele':
-      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.bogstav + " " + feature.properties.navn)); 
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" +feature.properties.bogstav + ")");
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label); 
       break;      
     case 'supplerendebynavne2': 
-      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.navn)); 
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn);
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
       break;    
-    case 'postnumre':  
-      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.nr + " " + feature.properties.navn)); 
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
+    case 'postnumre': 
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.nr + " " + feature.properties.navn); 
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
       break;
-    case 'adresser': 
-      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.adressebetegnelse));
+    case 'adresser':
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.adressebetegnelse.replace(',','<br/>'));
+      showPopu(vispopup, feature.properties.adgangsadresse.adgangspunkt.koordinater[0], feature.properties.adgangsadresse.adgangspunkt.koordinater[1], label);
+      layer.bindPopup(label);
       var marker= L.circleMarker(L.latLng(feature.properties.adgangsadresse.vejpunkt.koordinater[1], feature.properties.adgangsadresse.vejpunkt.koordinater[0]),{color: 'blue', fill: true, fillcolor: 'blue', fillOpacity: 1.0, radius: 2}).addTo(map);      
       break;
-    case 'adgangsadresser': 
-      layer.bindPopup(danLabel2(feature.properties.href,util.formatAdgangsadresse(feature.properties))); 
+    case 'adgangsadresser':
+      label= danLabel2(overskrift, feature.properties.href,util.formatAdgangsadresse(feature.properties)); 
+      showPopu(vispopup, feature.properties.adgangspunkt.koordinater[0], feature.properties.adgangspunkt.koordinater[1], label);
+      layer.bindPopup(label); 
       var marker= L.circleMarker(L.latLng(feature.properties.vejpunkt.koordinater[1], feature.properties.vejpunkt.koordinater[0]),{color: 'blue', fill: true, fillcolor: 'blue', fillOpacity: 1.0, radius: 2}).addTo(map);      
       break;      
-    case 'stednavne':  
-      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.navn + '<br>(' +  feature.properties.hovedtype  + ', ' + feature.properties.undertype + ")"));
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
+    case 'stednavne':
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + '<br/>(' +  feature.properties.hovedtype  + ', ' + feature.properties.undertype + ")");  
+      layer.bindPopup(label);
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label); 
       break;    
-    case 'stednavne2':  
-      layer.bindPopup(danLabel2(feature.properties.sted.href, feature.properties.navn + '<br>(' +  feature.properties.sted.hovedtype  + ', ' + feature.properties.sted.undertype + ")"));    
-      visVisueltCenter(feature.properties.sted.visueltcenter[0], feature.properties.sted_visueltcenter[1]); 
+    case 'stednavne2':
+      label= danLabel2(overskrift, feature.properties.sted.href, feature.properties.navn + '<br>(' +  feature.properties.sted.hovedtype  + ', ' + feature.properties.sted.undertype + ")");  
+      layer.bindPopup(label);    
+      visVisueltCenter(feature.properties.sted.visueltcenter[0], feature.properties.sted_visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);  
       break;      
-    case 'steder':  
-      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.primærtnavn + '<br>(' +  feature.properties.hovedtype  + ', ' + feature.properties.undertype + ")"));    
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
+    case 'steder':
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.primærtnavn + '<br>(' +  feature.properties.hovedtype  + ', ' + feature.properties.undertype + ")");  
+      layer.bindPopup(label);    
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);  
       break;    
-    case 'navngivneveje':   
-      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.navn));
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
+    case 'navngivneveje':
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn);   
+      layer.bindPopup(label);
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 3); 
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
       if (feature.properties.beliggenhed.vejtilslutningspunkter) {
         let punkter= feature.properties.beliggenhed.vejtilslutningspunkter.coordinates;
         for (var i= 0; i<punkter.length;i++) {
@@ -555,7 +601,7 @@ function eachFeature(ressource) {
       }
       break;
     case 'vejstykker':    
-      layer.bindPopup(danLabel2(feature.properties.href, feature.properties.kode + " " + feature.properties.navn)); 
+      layer.bindPopup(danLabel2(overskrift, feature.properties.href, feature.properties.kode + " " + feature.properties.navn)); 
       break;
     default:       
       if (feature.properties.visueltcenter_x && feature.properties.visueltcenter_y) {      
