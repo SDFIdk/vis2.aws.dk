@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/DanmarksAdresser/find.aws.dk#readme",
   "dependencies": {
-    "express": "^4.15.4",
+    "express": "^4.13.1",
     "g": "^2.0.1",
     "kf-getticket": "^1.0.0",
     "request": "^2.81.0",

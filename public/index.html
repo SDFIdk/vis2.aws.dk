@@ -1,39 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-
   <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Vis DAWA data på et kort">
+    <meta name="description" content="AWS Suitens Vis">
     <meta name="author" content="Finn Jordal">
 
-    <title>Vis DAWA data på et kort</title>
+    <title>DAWA's Vis</title>
 
     <link href="/css/style.css" rel="stylesheet">
-    <link rel="stylesheet" href="/node_modules/proj4leaflet/lib/leaflet/leaflet.css" />    
-    <link rel="stylesheet" href="/node_modules\leaflet-contextmenu\dist/leaflet.contextmenu.css"/>
-
-    <meta name="theme-color" content="#ffffff">
-
 
   </head>
 
   <body>
+    <h1>vis.aws.dk</h1>
+    <p>Vis.aws.dk websitet præsenterer geografiske data fra <a href='http://dawa.aws.dk'>DAWA</a> på kort. Når man arbejder med DAWA kan det ofte give en bedre forståelse for data, hvis man ser dem på et kort. Til dette har vi udviklet Vis websitet. Alle data fra DAWA som indeholder geografiske data kan præsenteres på et kort via vis.aws.dk. </p>
+    <h2>Brug</h2>
+    <p>For at kunne bruge Vis skal du angive hvilke data fra DAWA, du ønsker præsenteret. Angivelsen af hvilke data du ønsker sker på samme måde som i DAWA. Hvis du f.eks. ønsker data fra DAWA om det nye postnummer i Nordhavn anvender du <a href='http://dawa.aws.dk/postnumre/2150'>http://dawa.aws.dk/postnumre/2150</a>. Hvis du vil have vist samme data på et kort erstatter du <em>dawa.aws.dk</em> med <em>vis.aws.dk</em> og får <a href='http://vis.aws.dk/postnumre/2150'>http://vis.aws.dk/postnumre/2150</a>.</p>
+    <p>Vis.aws.dk kan kun anvendes i de tilfælde, hvor DAWA returnerer GeoJSON. Du skal ikke angive GeoJSON formatet. Det sker automatisk.</p>
+    <h2>Eksempler</h2>
+    <h3>Adgangsadresser på Roskildevej</h3>
+    <p><a href='http://vis.aws.dk/adgangsadresser?vejnavn=Roskildevej'>http://vis.aws.dk/adgangsadresser?vejnavn=Roskildevej</a></p>
+    <h3>Frederiksberg postnumre</h3>
+    <p><a href='http://vis.aws.dk/postnumre?q=frederiksberg'>http://vis.aws.dk/postnumre?q=frederiksberg</a></p>
+    <h3>Adresser på 20. etage</h3>
+    <p><a href='http://vis.aws.dk/adresser?etage=20'>http://vis.aws.dk/adresser?etage=20</a></p>
+    <br/>
 
-    <div id="map">
-    </div>  
- 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
-    <script src="/node_modules/proj4leaflet/lib/leaflet/leaflet.js"></script>
-    <script src="/node_modules/proj4leaflet/lib/proj4.js"></script>
-    <script src="/node_modules/proj4leaflet/src/proj4leaflet.js"></script>
-    <script src="/dist/main.js"></script>
-    <script src="/node_modules\leaflet-contextmenu\dist/leaflet.contextmenu.js"></script>
-
+   
+  
   </body>
 
 </html>

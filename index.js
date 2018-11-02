@@ -6,10 +6,11 @@ var express = require('express')
 
 var app = express();
 
+console.log(__dirname);
+
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function (req, res) {
-  console.log('get /');
   res.sendFile(__dirname + "/public/index.html", function (err) {
     if (err) {
       console.log(err);
@@ -32,12 +33,12 @@ app.get('/getticket', function (req, res, next) {
 
 app.get(/.+/, function (req, res) {
   //console.log(req);
-  res.sendFile(__dirname + "/public/index.html", function (err) {
+  res.sendFile(__dirname + "/public/app.html", function (err) {
     if (err) {
       console.log('fejl: ' + err);
     }
     else {
-      console.log('index.html');
+      console.log('app.html');
     }
   });
 }); 

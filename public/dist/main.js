@@ -409,9 +409,8 @@ function getMap() {
   return map;
 }
 
-var visData= function() {
+var visData= function(url) {
 
-  let url= new URL(window.location.href);
   if (url.hostname === 'localhost') {
     url.set('host','vis.aws.dk:80'); 
   }
@@ -535,7 +534,7 @@ function eachFeature(ressource, overskrift, vispopup) {
       break;      
     case 'opstillingskredse':
     case 'storkredse':
-      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" +feature.properties.kode + ")");
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" +feature.properties.nummer + ")");
       layer.bindPopup(label); 
       visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
       showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
@@ -560,13 +559,13 @@ function eachFeature(ressource, overskrift, vispopup) {
       break;
     case 'adresser':
       label= danLabel2(overskrift, feature.properties.href, feature.properties.adressebetegnelse.replace(',','<br/>'));
-      showPopu(vispopup, feature.properties.adgangsadresse.adgangspunkt.koordinater[0], feature.properties.adgangsadresse.adgangspunkt.koordinater[1], label);
+      showPopup(vispopup, feature.properties.adgangsadresse.adgangspunkt.koordinater[0], feature.properties.adgangsadresse.adgangspunkt.koordinater[1], label);
       layer.bindPopup(label);
       var marker= L.circleMarker(L.latLng(feature.properties.adgangsadresse.vejpunkt.koordinater[1], feature.properties.adgangsadresse.vejpunkt.koordinater[0]),{color: 'blue', fill: true, fillcolor: 'blue', fillOpacity: 1.0, radius: 2}).addTo(map);      
       break;
     case 'adgangsadresser':
       label= danLabel2(overskrift, feature.properties.href,util.formatAdgangsadresse(feature.properties)); 
-      showPopu(vispopup, feature.properties.adgangspunkt.koordinater[0], feature.properties.adgangspunkt.koordinater[1], label);
+      showPopup(vispopup, feature.properties.adgangspunkt.koordinater[0], feature.properties.adgangspunkt.koordinater[1], label);
       layer.bindPopup(label); 
       var marker= L.circleMarker(L.latLng(feature.properties.vejpunkt.koordinater[1], feature.properties.vejpunkt.koordinater[0]),{color: 'blue', fill: true, fillcolor: 'blue', fillOpacity: 1.0, radius: 2}).addTo(map);      
       break;      
@@ -579,8 +578,8 @@ function eachFeature(ressource, overskrift, vispopup) {
     case 'stednavne2':
       label= danLabel2(overskrift, feature.properties.sted.href, feature.properties.navn + '<br>(' +  feature.properties.sted.hovedtype  + ', ' + feature.properties.sted.undertype + ")");  
       layer.bindPopup(label);    
-      visVisueltCenter(feature.properties.sted.visueltcenter[0], feature.properties.sted_visueltcenter[1], 1);
-      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);  
+      visVisueltCenter(feature.properties.sted.visueltcenter[0], feature.properties.sted.visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.sted.visueltcenter[0], feature.properties.sted.visueltcenter[1], label);  
       break;      
     case 'steder':
       label= danLabel2(overskrift, feature.properties.href, feature.properties.primærtnavn + '<br>(' +  feature.properties.hovedtype  + ', ' + feature.properties.undertype + ")");  
@@ -703,12 +702,19 @@ function main() {
     ]
   };
 
+  let url= new URL(window.location.href);
+  let query= queryString.parse(url.query);
+  let korttype= query.kort;
+  if (korttype) {
+    options.baselayer= korttype;
+  }
+
   fetch('/getticket').then(function (response) {
     response.text().then(function (ticket) {      
       map= kort.viskort('map', ticket, options);
       var center= kort.beregnCenter();
       map.setView(center,2);
-      visData();
+      visData(url);
     });
   });  
 }
