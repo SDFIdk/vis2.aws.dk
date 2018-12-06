@@ -420,6 +420,11 @@ var visData= function(url) {
   let overskrift= query.overskrift;
   let vispopup= query.vispopup;
 
+  let host= query.host;
+  if (host) {
+    url.set('host',host);
+  } 
+
   let miljø= query.m;
   if (!miljø) miljø= 'dawa';
   url.host= url.host.replace('vis',miljø);
