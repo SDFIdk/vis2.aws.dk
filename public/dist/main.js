@@ -474,7 +474,7 @@ function danLabel2(overskrift, href, label) {
     tekst= overskrift + "<br/>" + label;
   } 
   else {
-    tekst= "<a target='_blank' href='" + href + "'>" + label + "</a>";
+    tekst= "<a href='" + href.replace('dawa','info') + "'>" + label + "</a>";
   }
   return tekst;
 }
@@ -811,21 +811,39 @@ exports.viskort = function(id,ticket,options) {
  		, postnrkort= danKort('dagi', 'postdistrikt', 'default','true')
  		, kommunekort= danKort('dagi', 'kommune', 'default','true');
 
-	var adressekort = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4/wms', {
+  var adressekort = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
       transparent: true,
       layers: 'adgangsadresser',
       format: 'image/png',
       continuousWorld: true
     });
-  var vejpunktkort = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4/wms', {
+  var vejpunktkort = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
       transparent: true,
       layers: 'vejpunkter',
       format: 'image/png',
       continuousWorld: true
     });
-  var vejpunktlinjekort = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4/wms', {
+  var vejpunktlinjekort = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
       transparent: true,
       layers: 'vejpunktlinjer',
+      format: 'image/png',
+      continuousWorld: true
+    }); 
+  var vejnavnelinjer = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
+      transparent: true,
+      layers: 'vejnavnelinjer',
+      format: 'image/png',
+      continuousWorld: true
+    });
+  var vejnavneomraader = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
+      transparent: true,
+      layers: 'vejnavneomraader',
+      format: 'image/png',
+      continuousWorld: true
+    });
+  var vejtilslutningspunkter = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
+      transparent: true,
+      layers: 'vejtilslutningspunkter',
       format: 'image/png',
       continuousWorld: true
     });
@@ -846,7 +864,10 @@ exports.viskort = function(id,ticket,options) {
    	"Postnumre": postnrkort,
     "Adresser": adressekort,
     "Vejpunkter": vejpunktkort,
-    "Vejpunktlinjer": vejpunktlinjekort
+    "Vejpunktlinjer": vejpunktlinjekort,
+    "Vejnavnelinjer": vejnavnelinjer,
+    "Vejnavneområder": vejnavneomraader,
+    "Vejtilslutningspunkter": vejtilslutningspunkter
   };
 
 
@@ -922,12 +943,12 @@ exports.nærmesteAdgangsadresse= function(getMap) {
       var x= adgangsadresse.adgangspunkt.koordinater[1]
         , y= adgangsadresse.adgangspunkt.koordinater[0];
       var marker= L.circleMarker(L.latLng(x, y), {color: 'red', fillColor: 'red', stroke: true, fillOpacity: 1.0, radius: 4, weight: 2, opacity: 1.0}).addTo(getMap());//defaultpointstyle);
-      var popup= marker.bindPopup(L.popup().setContent("<a target='_blank' href='https://dawa.aws.dk/adgangsadresser?id="+adgangsadresse.id+"'>" + dawautil.formatAdgangsadresse(adgangsadresse) + "</a>"),{autoPan: true});
+      var popup= marker.bindPopup(L.popup().setContent("<a href='https://info.aws.dk/adgangsadresser?id="+adgangsadresse.id+"'>" + dawautil.formatAdgangsadresse(adgangsadresse) + "</a>"),{autoPan: true});
       if (adgangsadresse.vejpunkt) {
         var vx= adgangsadresse.vejpunkt.koordinater[1]
           , vy= adgangsadresse.vejpunkt.koordinater[0];
         var vpmarker= L.circleMarker(L.latLng(vx, vy), {color: 'blue', fillColor: 'blue', stroke: true, fillOpacity: 1.0, radius: 4, weight: 2, opacity: 1.0}).addTo(getMap());//defaultpointstyle);
-        vpmarker.bindPopup(L.popup().setContent("<a target='_blank' href='https://dawa.aws.dk/adgangsadresser?id="+adgangsadresse.id+"'>" + dawautil.formatAdgangsadresse(adgangsadresse) + "</a>"),{autoPan: true});
+        vpmarker.bindPopup(L.popup().setContent("<a href='https://info.aws.dk/adgangsadresser?id="+adgangsadresse.id+"'>" + dawautil.formatAdgangsadresse(adgangsadresse) + "</a>"),{autoPan: true});
       }
 
       getMap().setView(L.latLng(x, y),12);
@@ -963,7 +984,7 @@ exports.nærmesteBygning= function(getMap) {
       var bygning= bygninger[0];
       var punkt=  L.latLng(bygning.bygningspunkt.koordinater[1], bygning.bygningspunkt.koordinater[0]);
       var marker= L.circleMarker(punkt, {color: 'blue', fillColor: 'blue', stroke: true, fillOpacity: 1.0, radius: 4, weight: 2, opacity: 1.0}).addTo(getMap());//defaultpointstyle);
-      var popup= marker.bindPopup(L.popup().setContent("<a target='_blank' href='" + url + "'>" + dawaois.anvendelseskoder[bygning.BYG_ANVEND_KODE] + " fra " + bygning.OPFOERELSE_AAR + "</a>"),{autoPan: true});
+      var popup= marker.bindPopup(L.popup().setContent("<a href='" + url.replace('dawa','info') + "'>" + dawaois.anvendelseskoder[bygning.BYG_ANVEND_KODE] + " fra " + bygning.OPFOERELSE_AAR + "</a>"),{autoPan: true});
       
       getMap().setView(punkt,12);
       popup.openPopup();
@@ -990,7 +1011,7 @@ exports.nærmesteVejstykke= function(getMap) {
     }) 
     .then( function ( vejstykke ) { 
       var layer= L.geoJSON(vejstykke).addTo(getMap());
-      var popup= layer.bindPopup("<a target='_blank' href='https://dawa.aws.dk/vejstykker?kode="+vejstykke.properties.kode+"&kommunekode="+vejstykke.properties.kommunekode+"'>" + vejstykke.properties.navn + " (" + vejstykke.properties.kode + ")" + "</a>");
+      var popup= layer.bindPopup("<a href='https://info.aws.dk/vejstykker?kode="+vejstykke.properties.kode+"&kommunekode="+vejstykke.properties.kommunekode+"'>" + vejstykke.properties.navn + " (" + vejstykke.properties.kode + ")" + "</a>");
       popup.openPopup();
     });
   };
@@ -1015,7 +1036,7 @@ exports.nærmesteNavngivneVej= function(getMap) {
     .then( function ( navngivenveje ) {       
       var navngivenvej= navngivenveje.features[0];
       var layer= L.geoJSON(navngivenvej).addTo(getMap());
-      var popup= layer.bindPopup("<a target='_blank' href='https://dawa.aws.dk/navngivneveje?id="+navngivenvej.properties.id+"'>" + navngivenvej.properties.navn + "</a>");
+      var popup= layer.bindPopup("<a href='https://info.aws.dk/navngivneveje?id="+navngivenvej.properties.id+"'>" + navngivenvej.properties.navn + "</a>");
       popup.openPopup();
     });
   };
@@ -1113,27 +1134,27 @@ function capitalizeFirstLetter(string) {
 }
 
 function formatpostnummer(data) {
-  return "<li>Postnummer: <a target='_blank' href='https://dawa.aws.dk/postnumre/"+data.nr+"'>" +  data.nr + " " + data.navn + "</a></li>";
+  return "<li>Postnummer: <a href='https://info.aws.dk/postnumre/"+data.nr+"'>" +  data.nr + " " + data.navn + "</a></li>";
 }
 
 function formatstorkreds(data) {
-  return "<li>Storkreds: <a target='_blank' href='https://dawa.aws.dk/storkredse/"+data.nummer+"'>" + data.navn + " (" + data.nummer + ")" + "</a></li>";
+  return "<li>Storkreds: <a href='https://info.aws.dk/storkredse/"+data.nummer+"'>" + data.navn + " (" + data.nummer + ")" + "</a></li>";
 }
 
 function formatjordstykke(data) {
-  return "<li>Jordstykke: <a target='_blank' href='https://dawa.aws.dk/jordstykker/"+data.ejerlav.kode+"/"+data.matrikelnr+"'>" + (data.ejerlav.navn?data.ejerlav.navn+" ":"") + data.ejerlav.kode + " " +data.matrikelnr + "</a></li>";
+  return "<li>Jordstykke: <a href='https://info.aws.dk/jordstykker/"+data.ejerlav.kode+"/"+data.matrikelnr+"'>" + (data.ejerlav.navn?data.ejerlav.navn+" ":"") + data.ejerlav.kode + " " +data.matrikelnr + "</a></li>";
 }
 
 function formatstednavne(data) {
   let tekst= '';
   for (var i= 0; i<data.length;i++) {
-    tekst= tekst + "<li>" + capitalizeFirstLetter(data[i].undertype)+": <a target='_blank' href='https://dawa.aws.dk/stednavne/"+data[i].id+"'>" + data[i].navn + "</a></li>";
+    tekst= tekst + "<li>" + capitalizeFirstLetter(data[i].undertype)+": <a href='https://info.aws.dk/stednavne/"+data[i].id+"'>" + data[i].navn + "</a></li>";
   }
   return tekst;
 }
 
 function formatdata(titel,id) {
-  return function (data) { return "<li>" + titel + ": <a target='_blank' href='https://dawa.aws.dk/"+id+"/"+data.kode+"'>" + data.navn + " (" + data.kode + ")" + "</a></li>";};
+  return function (data) { return "<li>" + titel + ": <a href='https://info.aws.dk/"+id+"/"+data.kode+"'>" + data.navn + " (" + data.kode + ")" + "</a></li>";};
 }
 
 

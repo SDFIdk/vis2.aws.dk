@@ -76,7 +76,7 @@ function danLabel2(overskrift, href, label) {
     tekst= overskrift + "<br/>" + label;
   } 
   else {
-    tekst= "<a target='_blank' href='" + href + "'>" + label + "</a>";
+    tekst= "<a href='" + href.replace('dawa','info') + "'>" + label + "</a>";
   }
   return tekst;
 }
