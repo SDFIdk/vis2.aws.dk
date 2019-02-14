@@ -60,682 +60,19 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 6);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var URLSearchParams = __webpack_require__(1);
-
-exports.corssupported= function () {
-  return "withCredentials" in (new XMLHttpRequest());
-}
-
-function formatAa(vejnavn,husnr,supplerendebynavn,postnr,postnrnavn,enlinje) {
-	let separator= (enlinje || typeof enlinje != 'undefined')?", ":"<br/>";
-	supplerendebynavn= supplerendebynavn?separator + supplerendebynavn:"";
-	return vejnavn + " " + husnr + supplerendebynavn + separator + postnr + " " + postnrnavn
-}
-
-exports.formatAdgangsadresse= function (record, enlinje) {
-	if (record.vejstykke) {
-		return formatAa(record.vejstykke.navn, record.husnr, record.supplerendebynavn, record.postnummer.nr, record.postnummer.navn, enlinje);
-	}
-	else {
-		return formatAa(record.vejnavn, record.husnr, record.supplerendebynavn, record.postnr, record.postnrnavn, enlinje);
-	}	
-}
-
-exports.formatAdresse= function (mini, enlinje) {
-	let separator= (enlinje || typeof enlinje != 'undefined')?", ":"<br/>";
-	let etagedør= (mini.etage?", "+mini.etage+".":"") + (mini.dør?" "+mini.dør:"");
-
-	let supplerendebynavn= mini.supplerendebynavn?separator + mini.supplerendebynavn:"";
-	return mini.vejnavn + " " + mini.husnr + etagedør + supplerendebynavn + separator + mini.postnr + " " + mini.postnrnavn
-}
-
-exports.danUrl= function (path, query) { 
-  var params = new URLSearchParams();
-  Object.keys(query).forEach(function(key) {params.set(key, query[key])});
-  return path + "?" + params.toString();
-}
-
-exports.getQueryVariable= function (variable) {
-  var query = window.location.search.substring(1);
-  var vars = query.split("&");
-  for (var i=0; i<vars.length; i++) {
-    var pair = vars[i].split("=");
-    if (pair[0] == variable) {
-      return pair[1];
-    }
-  }
-}
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(global) {/*!
-Copyright (C) 2015 by WebReflection
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
-
-function URLSearchParams(query) {
-  var
-    index, key, value,
-    pairs, i, length,
-    dict = Object.create(null)
-  ;
-  this[secret] = dict;
-  if (!query) return;
-  if (typeof query === 'string') {
-    if (query.charAt(0) === '?') {
-      query = query.slice(1);
-    }
-    for (
-      pairs = query.split('&'),
-      i = 0,
-      length = pairs.length; i < length; i++
-    ) {
-      value = pairs[i];
-      index = value.indexOf('=');
-      if (-1 < index) {
-        appendTo(
-          dict,
-          decode(value.slice(0, index)),
-          decode(value.slice(index + 1))
-        );
-      } else if (value.length){
-        appendTo(
-          dict,
-          decode(value),
-          ''
-        );
-      }
-    }
-  } else {
-    if (isArray(query)) {
-      for (
-        i = 0,
-        length = query.length; i < length; i++
-      ) {
-        value = query[i];
-        appendTo(dict, value[0], value[1]);
-      }
-    } else {
-      for (key in query) {
-         appendTo(dict, key, query[key]);
-      }
-    }
-  }
-}
-
-var
-  isArray = Array.isArray,
-  URLSearchParamsProto = URLSearchParams.prototype,
-  find = /[!'\(\)~]|%20|%00/g,
-  plus = /\+/g,
-  replace = {
-    '!': '%21',
-    "'": '%27',
-    '(': '%28',
-    ')': '%29',
-    '~': '%7E',
-    '%20': '+',
-    '%00': '\x00'
-  },
-  replacer = function (match) {
-    return replace[match];
-  },
-  iterable = isIterable(),
-  secret = '__URLSearchParams__:' + Math.random()
-;
-
-function appendTo(dict, name, value) {
-  if (name in dict) {
-    dict[name].push('' + value);
-  } else {
-    dict[name] = isArray(value) ? value : ['' + value];
-  }
-}
-
-function decode(str) {
-  return decodeURIComponent(str.replace(plus, ' '));
-}
-
-function encode(str) {
-  return encodeURIComponent(str).replace(find, replacer);
-}
-
-function isIterable() {
-  try {
-    return !!Symbol.iterator;
-  } catch(error) {
-    return false;
-  }
-}
-
-URLSearchParamsProto.append = function append(name, value) {
-  appendTo(this[secret], name, value);
-};
-
-URLSearchParamsProto.delete = function del(name) {
-  delete this[secret][name];
-};
-
-URLSearchParamsProto.get = function get(name) {
-  var dict = this[secret];
-  return name in dict ? dict[name][0] : null;
-};
-
-URLSearchParamsProto.getAll = function getAll(name) {
-  var dict = this[secret];
-  return name in dict ? dict[name].slice(0) : [];
-};
-
-URLSearchParamsProto.has = function has(name) {
-  return name in this[secret];
-};
-
-URLSearchParamsProto.set = function set(name, value) {
-  this[secret][name] = ['' + value];
-};
-
-URLSearchParamsProto.forEach = function forEach(callback, thisArg) {
-  var dict = this[secret];
-  Object.getOwnPropertyNames(dict).forEach(function(name) {
-    dict[name].forEach(function(value) {
-      callback.call(thisArg, value, name, this);
-    }, this);
-  }, this);
-};
-
-URLSearchParamsProto.keys = function keys() {
-  var items = [];
-  this.forEach(function(value, name) { items.push(name); });
-  var iterator = {
-    next: function() {
-      var value = items.shift();
-      return {done: value === undefined, value: value};
-    }
-  };
-
-  if (iterable) {
-    iterator[Symbol.iterator] = function() {
-      return iterator;
-    };
-  }
-
-  return iterator;
-};
-
-URLSearchParamsProto.values = function values() {
-  var items = [];
-  this.forEach(function(value) { items.push(value); });
-  var iterator = {
-    next: function() {
-      var value = items.shift();
-      return {done: value === undefined, value: value};
-    }
-  };
-
-  if (iterable) {
-    iterator[Symbol.iterator] = function() {
-      return iterator;
-    };
-  }
-
-  return iterator;
-};
-
-URLSearchParamsProto.entries = function entries() {
-  var items = [];
-  this.forEach(function(value, name) { items.push([name, value]); });
-  var iterator = {
-    next: function() {
-      var value = items.shift();
-      return {done: value === undefined, value: value};
-    }
-  };
-
-  if (iterable) {
-    iterator[Symbol.iterator] = function() {
-      return iterator;
-    };
-  }
-
-  return iterator;
-};
-
-if (iterable) {
-  URLSearchParamsProto[Symbol.iterator] = URLSearchParamsProto.entries;
-}
-
-/*
-URLSearchParamsProto.toBody = function() {
-  return new Blob(
-    [this.toString()],
-    {type: 'application/x-www-form-urlencoded'}
-  );
-};
-*/
-
-URLSearchParamsProto.toJSON = function toJSON() {
-  return {};
-};
-
-URLSearchParamsProto.toString = function toString() {
-  var dict = this[secret], query = [], i, key, name, value;
-  for (key in dict) {
-    name = encode(key);
-    for (
-      i = 0,
-      value = dict[key];
-      i < value.length; i++
-    ) {
-      query.push(name + '=' + encode(value[i]));
-    }
-  }
-  return query.join('&');
-};
-
-module.exports = global.URLSearchParams || URLSearchParams;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
 "use strict";
 
 
-var kort= __webpack_require__(4)
-    , util = __webpack_require__(0)
-    , URL = __webpack_require__(6)
-    , queryString = __webpack_require__(9);
-
-var map;
-
-function getMap() {
-  return map;
-}
-
-var visData= function(url) {
-
-  if (url.hostname === 'localhost') {
-    url.set('host','vis.aws.dk:80'); 
-  }
-
-  let query= queryString.parse(url.query);
-
-  let overskrift= query.overskrift;
-  let vispopup= query.vispopup;
-
-  let host= query.host;
-  if (host) {
-    url.set('host',host);
-  } 
-
-  let miljø= query.m;
-  if (!miljø) miljø= 'dawa';
-  url.host= url.host.replace('vis',miljø);
-  let arr= url.pathname.split('/');
-  let ressource= arr[1];
-
-  query.format= 'geojson';
-  if (ressource === 'navngivneveje') query.geometri= 'begge'; 
-  if (nestet(ressource)) {
-    query.struktur= 'nestet';
-  }
-  else {
-    delete query.struktur;
-  }
-  url.set('query',queryString.stringify(query));
-
-  let urltext= url.toString();
-
-  fetch(urltext).then( function(response) {
-    response.json().then( function ( data ) {
-      if (data.type === "FeatureCollection" && data.features.length === 0) return;
-      let style=  getDefaultStyle(ressource);
-      var geojsonlayer= L.geoJson(data, {style: style, onEachFeature: eachFeature(ressource,overskrift,vispopup), pointToLayer: pointToLayer}); 
-      geojsonlayer.addTo(map);
-      map.fitBounds(geojsonlayer.getBounds());
-       
-      var zoom= map.getZoom();
-      if (zoom >= 13) {
-        map.setZoom(11);
-      }
-    });
-  });
-}
-
-function nestet(ressource) {
-  let erNestet= false
-  switch (ressource) {
-  default:  
-    erNestet=true;
-  }
-  return erNestet;
-}
-
-function danLabel2(overskrift, href, label) {
-  let tekst= "";
-  if (overskrift) {
-    tekst= overskrift + "<br/>" + label;
-  } 
-  else {
-    tekst= "<a href='" + href.replace('dawa','info') + "'>" + label + "</a>";
-  }
-  return tekst;
-}
-
-function visVisueltCenter(x,y,r) {
-  var marker= L.circleMarker(L.latLng(y, x),{color: 'black', fill: true, fillcolor: 'black', fillOpacity: 1.0, radius: r}).addTo(map);
-}
-
-function showPopup(vis,x,y,label) {
-  if (vis) {
-    var popup = L.popup()
-      .setLatLng(L.latLng(y,x))
-      .setContent(label)
-      .openOn(map); 
-  }
-}
-
-function eachFeature(ressource, overskrift, vispopup) {
-  return function (feature, layer) {
-    let label= "";
-    switch (ressource) {
-    case 'ejerlav':
-      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" + feature.properties.kode + ")");
-      layer.bindPopup(label);
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
-      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
-      break;
-    case 'jordstykker':
-      let kode= feature.properties.ejerlav.kode;
-      let navn= feature.properties.ejerlav.navn;
-      let nr= feature.properties.matrikelnr;
-      label= danLabel2(overskrift, feature.properties.href, nr + " " + navn + " (" + kode + ")");
-      layer.bindPopup(label);
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
-      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label); 
-     break;
-    case 'sogne':
-    case 'politikredse':
-    case 'retskredse':
-    case 'regioner':
-    case 'kommuner':
-      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" +feature.properties.kode + ")");
-      layer.bindPopup(label); 
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
-      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label); 
-      break;
-    case 'afstemningsomraader': 
-      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn);
-      layer.bindPopup(label); 
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
-      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
-      map.createPane("locationMarker");
-      map.getPane("locationMarker").style.zIndex = 500;
-      var marker= L.circleMarker(L.latLng(feature.properties.afstemningssted.adgangsadresse.koordinater[1], feature.properties.afstemningssted.adgangsadresse.koordinater[0]),{color: 'red', fill: true, fillcolor: 'red', fillOpacity: 1.0, radius: 3,  pane: "locationMarker" }).addTo(map);      
-      marker.bindPopup(danLabel2(overskrift, feature.properties.afstemningssted.adgangsadresse.href, feature.properties.afstemningssted.navn + "<br/>" + feature.properties.afstemningssted.adgangsadresse.adressebetegnelse.replace(',','<br/>'))); 
-      break;
-    case 'menighedsraadsafstemningsomraader':
-      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" +feature.properties.nummer + ")");
-      layer.bindPopup(label); 
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
-      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
-      break;      
-    case 'opstillingskredse':
-    case 'storkredse':
-      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" +feature.properties.nummer + ")");
-      layer.bindPopup(label); 
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
-      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
-      break; 
-    case 'valglandsdele':
-      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" +feature.properties.bogstav + ")");
-      layer.bindPopup(label); 
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
-      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label); 
-      break;      
-    case 'supplerendebynavne2': 
-      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn);
-      layer.bindPopup(label); 
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
-      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
-      break;    
-    case 'postnumre': 
-      label= danLabel2(overskrift, feature.properties.href, feature.properties.nr + " " + feature.properties.navn); 
-      layer.bindPopup(label); 
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
-      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
-      break;
-    case 'adresser':
-      label= danLabel2(overskrift, feature.properties.href, feature.properties.adressebetegnelse.replace(',','<br/>'));
-      showPopup(vispopup, feature.properties.adgangsadresse.adgangspunkt.koordinater[0], feature.properties.adgangsadresse.adgangspunkt.koordinater[1], label);
-      layer.bindPopup(label);
-      var marker= L.circleMarker(L.latLng(feature.properties.adgangsadresse.vejpunkt.koordinater[1], feature.properties.adgangsadresse.vejpunkt.koordinater[0]),{color: 'blue', fill: true, fillcolor: 'blue', fillOpacity: 1.0, radius: 2}).addTo(map);      
-      break;
-    case 'adgangsadresser':
-      label= danLabel2(overskrift, feature.properties.href,util.formatAdgangsadresse(feature.properties)); 
-      showPopup(vispopup, feature.properties.adgangspunkt.koordinater[0], feature.properties.adgangspunkt.koordinater[1], label);
-      layer.bindPopup(label); 
-      var marker= L.circleMarker(L.latLng(feature.properties.vejpunkt.koordinater[1], feature.properties.vejpunkt.koordinater[0]),{color: 'blue', fill: true, fillcolor: 'blue', fillOpacity: 1.0, radius: 2}).addTo(map);      
-      break;      
-    case 'stednavne':
-      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + '<br/>(' +  feature.properties.hovedtype  + ', ' + feature.properties.undertype + ")");  
-      layer.bindPopup(label);
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
-      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label); 
-      break;    
-    case 'stednavne2':
-      label= danLabel2(overskrift, feature.properties.sted.href, feature.properties.navn + '<br>(' +  feature.properties.sted.hovedtype  + ', ' + feature.properties.sted.undertype + ")");  
-      layer.bindPopup(label);    
-      visVisueltCenter(feature.properties.sted.visueltcenter[0], feature.properties.sted.visueltcenter[1], 1);
-      showPopup(vispopup, feature.properties.sted.visueltcenter[0], feature.properties.sted.visueltcenter[1], label);  
-      break;      
-    case 'steder':
-      label= danLabel2(overskrift, feature.properties.href, feature.properties.primærtnavn + '<br>(' +  feature.properties.hovedtype  + ', ' + feature.properties.undertype + ")");  
-      layer.bindPopup(label);    
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
-      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);  
-      break;    
-    case 'navngivneveje':
-      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn);   
-      layer.bindPopup(label);
-      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 3); 
-      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
-      if (feature.properties.beliggenhed.vejtilslutningspunkter) {
-        let punkter= feature.properties.beliggenhed.vejtilslutningspunkter.coordinates;
-        for (var i= 0; i<punkter.length;i++) {
-           var marker= L.circleMarker(L.latLng(punkter[i][1], punkter[i][0]), {color: 'blue', fillColor: 'blue', stroke: true, fillOpacity: 1.0, radius: 4, weight: 2, opacity: 1.0}).addTo(map);
-        }
-      }
-      break;
-    case 'vejstykker':    
-      layer.bindPopup(danLabel2(overskrift, feature.properties.href, feature.properties.kode + " " + feature.properties.navn)); 
-      break;
-    default:       
-      if (feature.properties.visueltcenter_x && feature.properties.visueltcenter_y) {      
-        visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
-      }      
-      if (feature.properties.visueltcenter) {      
-        visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
-      }
-    }
-    layer.on('contextmenu', function(e) {map.contextmenu.showAt(e.latlng)}); 
-  }
-}
-
-function pointToLayer(geoJsonPoint, latlng) {
-  return L.circleMarker(latlng);
-} 
-
-
-function getDefaultStyle(ressource) {
-  return function (feature) {
-    let style= {};
-    switch (ressource) {
-    case 'jordstykker':
-    case 'ejerlav':
-      style.color= "green";
-      style.fillColor= 'green';
-      break;
-    case 'sogne':
-    case 'politikredse':
-    case 'retskredse':
-    case 'regioner':
-    case 'opstillingskredse':
-    case 'storkredse':
-    case 'valglandsdele':
-    case 'afstemningsomraader':
-    case 'menighedsraadsafstemningsomraader':
-    case 'kommuner':
-      style.color= "green";
-      style.fillColor= 'green';
-      break
-    case 'supplerendebynavne':
-      style.color= "green";
-      style.fillColor= 'green';
-      break;
-    case 'supplerendebynavne2': 
-      style.color= "green";
-      style.fillColor= 'green';
-      break;    
-    case 'postnumre': 
-      style.color= "green";
-      style.fillColor= 'green'; 
-      break;
-    case 'adresser':
-    case 'adgangsadresser':
-      style.color= "red";
-      style.opacity= 1.0;
-      style.weight= 1;
-      style.fill= true;
-      style.fillColor= 'red';
-      style.fillOpacity= 1.0;
-      style.radius= 5; 
-      break;      
-    case 'steder':  
-    case 'stednavne': 
-    case 'stednavne2':
-      style.color= "green";
-      style.fillColor= 'green';  
-      break;    
-    case 'navngivneveje':
-    case 'vejstykker':
-      style.color= "blue";
-      style.fillColor= 'blue';   
-      break;
-    default:
-      break;
-    }
-    return style;
-  }
-}
-
-function main() { 
-  
-  var options= {
-    contextmenu: true,
-    contextmenuWidth: 140,
-    contextmenuItems: [
-    {
-      text: 'Adgangsadresse?',
-      callback: kort.nærmesteAdgangsadresse(getMap)
-    },
-    {
-      text: 'Vej?',
-      callback: kort.nærmesteNavngivneVej(getMap)
-    },
-    {
-      text: 'Hvor?',
-      callback: kort.hvor(getMap)
-    }
-    ]
-  };
-
-  let url= new URL(window.location.href);
-  let query= queryString.parse(url.query);
-  let korttype= query.kort;
-  if (korttype) {
-    options.baselayer= korttype;
-  }
-
-  fetch('/getticket').then(function (response) {
-    response.text().then(function (ticket) {      
-      map= kort.viskort('map', ticket, options);
-      var center= kort.beregnCenter();
-      map.setView(center,2);
-      visData(url);
-    });
-  });  
-}
-
-main();
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var dawautil= __webpack_require__(0)
-  , URLSearchParams = __webpack_require__(1)  
-  , dawaois= __webpack_require__(5);
+var dawautil= __webpack_require__(1)
+  , URLSearchParams = __webpack_require__(2)  
+  , dawaois= __webpack_require__(7);
 
 proj4.defs([
   [
@@ -1159,91 +496,342 @@ function formatdata(titel,id) {
 
 
 /***/ }),
-/* 5 */
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var URLSearchParams = __webpack_require__(2);
+
+exports.corssupported= function () {
+  return "withCredentials" in (new XMLHttpRequest());
+}
+
+function formatAa(vejnavn,husnr,supplerendebynavn,postnr,postnrnavn,enlinje) {
+	let separator= (enlinje || typeof enlinje != 'undefined')?", ":"<br/>";
+	supplerendebynavn= supplerendebynavn?separator + supplerendebynavn:"";
+	return vejnavn + " " + husnr + supplerendebynavn + separator + postnr + " " + postnrnavn
+}
+
+exports.formatAdgangsadresse= function (record, enlinje) {
+	if (record.vejstykke) {
+		return formatAa(record.vejstykke.navn, record.husnr, record.supplerendebynavn, record.postnummer.nr, record.postnummer.navn, enlinje);
+	}
+	else {
+		return formatAa(record.vejnavn, record.husnr, record.supplerendebynavn, record.postnr, record.postnrnavn, enlinje);
+	}	
+}
+
+exports.formatAdresse= function (mini, enlinje) {
+	let separator= (enlinje || typeof enlinje != 'undefined')?", ":"<br/>";
+	let etagedør= (mini.etage?", "+mini.etage+".":"") + (mini.dør?" "+mini.dør:"");
+
+	let supplerendebynavn= mini.supplerendebynavn?separator + mini.supplerendebynavn:"";
+	return mini.vejnavn + " " + mini.husnr + etagedør + supplerendebynavn + separator + mini.postnr + " " + mini.postnrnavn
+}
+
+exports.danUrl= function (path, query) { 
+  var params = new URLSearchParams();
+  Object.keys(query).forEach(function(key) {params.set(key, query[key])});
+  return path + "?" + params.toString();
+}
+
+exports.getQueryVariable= function (variable) {
+  var query = window.location.search.substring(1);
+  var vars = query.split("&");
+  for (var i=0; i<vars.length; i++) {
+    var pair = vars[i].split("=");
+    if (pair[0] == variable) {
+      return pair[1];
+    }
+  }
+}
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+/* WEBPACK VAR INJECTION */(function(global) {/*!
+Copyright (C) 2015 by WebReflection
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
 
 
-var anvendelseskoder= {};
-function initanvendelseskoder() {
-anvendelseskoder[110]= "Stuehus til landbrugsejendom";
-anvendelseskoder[120]= "Fritliggende eenfamilieshus (parcelhus)";
-anvendelseskoder[130]= "Række-, kæde-, eller dobbelthus (lodret adskillelse mellem enhederne)";
-anvendelseskoder[140]= "Etageboligbebyggelse (flerfamiliehus, herunder to-familiehus (vandret adskillelse mellem enhederne)";
-anvendelseskoder[150]= "Kollegium";
-anvendelseskoder[160]= "Døgninstitution (plejehjem, alderdomshjem, børne- eller ungdomshjem)";
-anvendelseskoder[190]= "Anden bygning til helårsbeboelse";
-anvendelseskoder[210]= "Bygning til erhvervsmæssig produktion vedrørende landbrug, gartneri, råstofudvinding o. lign";
-anvendelseskoder[220]= "Bygning til erhvervsmæssig produktion vedrørende industri, håndværk m.v. (fabrik, værksted o. lign.)";
-anvendelseskoder[230]= "El-, gas-, vand- eller varmeværk, forbrændingsanstalt m.v.";
-anvendelseskoder[290]= "Anden bygning til landbrug, industri etc.";
-anvendelseskoder[310]= "Transport- og garageanlæg (fragtmandshal, lufthavnsbygning, banegårdsbygning, parkeringshus). Garage med plads til et eller to køretøjer registreres med anvendelseskode 910";
-anvendelseskoder[320]= "Bygning til kontor, handel, lager, herunder offentlig administration";
-anvendelseskoder[330]= "Bygning til hotel, restaurant, vaskeri, frisør og anden servicevirksomhed";
-anvendelseskoder[390]= "Anden bygning til transport, handel etc.";
-anvendelseskoder[410]= "Bygning til biograf, teater, erhvervsmæssig udstilling, bibliotek, museum, kirke o. lign.";
-anvendelseskoder[420]= "Bygning til undervisning og forskning (skole, gymnasium, forskningslaboratorium o. lign.)";
-anvendelseskoder[430]= "Bygning til hospital, sygehjem, fødeklinik o. lign.";
-anvendelseskoder[440]= "Bygning til daginstitution";
-anvendelseskoder[490]= "Bygning til anden institution, herunder kaserne, fængsel o. lign.";
-anvendelseskoder[510]= "Sommerhus";
-anvendelseskoder[520]= "Bygning til ferieformål m.v., bortset fra sommerhus (feriekoloni, vandrehjem o. lign.)";
-anvendelseskoder[530]= "Bygning i forbindelse med idrætsudøvelse (klubhus, idrætshal, svømmehal o. lign.)";
-anvendelseskoder[540]= "Kolonihavehus";
-anvendelseskoder[590]= "Anden bygning til fritidsformål";
-anvendelseskoder[910]= "Garage med plads til et eller to køretøjer";
-anvendelseskoder[920]= "Carport";
-anvendelseskoder[930]= "Udhus";
+function URLSearchParams(query) {
+  var
+    index, key, value,
+    pairs, i, length,
+    dict = Object.create(null)
+  ;
+  this[secret] = dict;
+  if (!query) return;
+  if (typeof query === 'string') {
+    if (query.charAt(0) === '?') {
+      query = query.slice(1);
+    }
+    for (
+      pairs = query.split('&'),
+      i = 0,
+      length = pairs.length; i < length; i++
+    ) {
+      value = pairs[i];
+      index = value.indexOf('=');
+      if (-1 < index) {
+        appendTo(
+          dict,
+          decode(value.slice(0, index)),
+          decode(value.slice(index + 1))
+        );
+      } else if (value.length){
+        appendTo(
+          dict,
+          decode(value),
+          ''
+        );
+      }
+    }
+  } else {
+    if (isArray(query)) {
+      for (
+        i = 0,
+        length = query.length; i < length; i++
+      ) {
+        value = query[i];
+        appendTo(dict, value[0], value[1]);
+      }
+    } else {
+      for (key in query) {
+         appendTo(dict, key, query[key]);
+      }
+    }
+  }
 }
-initanvendelseskoder();
-exports.anvendelseskoder= anvendelseskoder;
 
+var
+  isArray = Array.isArray,
+  URLSearchParamsProto = URLSearchParams.prototype,
+  find = /[!'\(\)~]|%20|%00/g,
+  plus = /\+/g,
+  replace = {
+    '!': '%21',
+    "'": '%27',
+    '(': '%28',
+    ')': '%29',
+    '~': '%7E',
+    '%20': '+',
+    '%00': '\x00'
+  },
+  replacer = function (match) {
+    return replace[match];
+  },
+  iterable = isIterable(),
+  secret = '__URLSearchParams__:' + Math.random()
+;
 
-var klassifikationskoder= {};
-function initklassifikationskoder() {
-klassifikationskoder[1110]= "Tank (Produkt på væskeform)";
-klassifikationskoder[1120]= "Silo (Produkt på fast form)";
-klassifikationskoder[1130]= "Gasbeholder (Produkt på gasform)";
-klassifikationskoder[1140]= "Affaldsbeholder";
-klassifikationskoder[1210]= "Vindmølle (elproducerende)";
-klassifikationskoder[1220]= "Slanger til jordvarme";
-klassifikationskoder[1230]= "Solvarme-/ solcelleanlæg";
-klassifikationskoder[1240]= "Nødstrømsforsyningsanlæg";
-klassifikationskoder[1250]= "Transformerstation";
-klassifikationskoder[1260]= "Elskab";
-klassifikationskoder[1265]= "Naturgasfyr";
-klassifikationskoder[1270]= "Andet energiproducerende eller - distribuerende anlæg";
-klassifikationskoder[1310]= "Vandtårn";
-klassifikationskoder[1320]= "Pumpestation";
-klassifikationskoder[1330]= "Swimmingpool";
-klassifikationskoder[1340]= "Private rensningsanlæg f.eks. pileanlæg, nedsivningsanlæg";
-klassifikationskoder[1350]= "Offentlige rensningsanlæg";
-klassifikationskoder[1360]= "Regnvandsanlæg";
-klassifikationskoder[1905]= "Legeplads";
-klassifikationskoder[1910]= "Teknikhus";
-klassifikationskoder[1915]= "Døgnpostboks";
-klassifikationskoder[1920]= "Køleanlæg (herunder aircondition)";
-klassifikationskoder[1925]= "Kunstværk (springvand, mindesmærker m.v.)";
-klassifikationskoder[1930]= "Sirene / mast med sirene";
-klassifikationskoder[1935]= "Skilt";
-klassifikationskoder[1940]= "Antenne / mast fx tv, radio- og telekommunikation";
-klassifikationskoder[1945]= "Dambrug";
-klassifikationskoder[1950]= "Møddingsanlæg";
-klassifikationskoder[1955]= "Andet teknisk anlæg";
+function appendTo(dict, name, value) {
+  if (name in dict) {
+    dict[name].push('' + value);
+  } else {
+    dict[name] = isArray(value) ? value : ['' + value];
+  }
 }
-initklassifikationskoder();
-exports.klassifikationskoder= klassifikationskoder;
+
+function decode(str) {
+  return decodeURIComponent(str.replace(plus, ' '));
+}
+
+function encode(str) {
+  return encodeURIComponent(str).replace(find, replacer);
+}
+
+function isIterable() {
+  try {
+    return !!Symbol.iterator;
+  } catch(error) {
+    return false;
+  }
+}
+
+URLSearchParamsProto.append = function append(name, value) {
+  appendTo(this[secret], name, value);
+};
+
+URLSearchParamsProto.delete = function del(name) {
+  delete this[secret][name];
+};
+
+URLSearchParamsProto.get = function get(name) {
+  var dict = this[secret];
+  return name in dict ? dict[name][0] : null;
+};
+
+URLSearchParamsProto.getAll = function getAll(name) {
+  var dict = this[secret];
+  return name in dict ? dict[name].slice(0) : [];
+};
+
+URLSearchParamsProto.has = function has(name) {
+  return name in this[secret];
+};
+
+URLSearchParamsProto.set = function set(name, value) {
+  this[secret][name] = ['' + value];
+};
+
+URLSearchParamsProto.forEach = function forEach(callback, thisArg) {
+  var dict = this[secret];
+  Object.getOwnPropertyNames(dict).forEach(function(name) {
+    dict[name].forEach(function(value) {
+      callback.call(thisArg, value, name, this);
+    }, this);
+  }, this);
+};
+
+URLSearchParamsProto.keys = function keys() {
+  var items = [];
+  this.forEach(function(value, name) { items.push(name); });
+  var iterator = {
+    next: function() {
+      var value = items.shift();
+      return {done: value === undefined, value: value};
+    }
+  };
+
+  if (iterable) {
+    iterator[Symbol.iterator] = function() {
+      return iterator;
+    };
+  }
+
+  return iterator;
+};
+
+URLSearchParamsProto.values = function values() {
+  var items = [];
+  this.forEach(function(value) { items.push(value); });
+  var iterator = {
+    next: function() {
+      var value = items.shift();
+      return {done: value === undefined, value: value};
+    }
+  };
+
+  if (iterable) {
+    iterator[Symbol.iterator] = function() {
+      return iterator;
+    };
+  }
+
+  return iterator;
+};
+
+URLSearchParamsProto.entries = function entries() {
+  var items = [];
+  this.forEach(function(value, name) { items.push([name, value]); });
+  var iterator = {
+    next: function() {
+      var value = items.shift();
+      return {done: value === undefined, value: value};
+    }
+  };
+
+  if (iterable) {
+    iterator[Symbol.iterator] = function() {
+      return iterator;
+    };
+  }
+
+  return iterator;
+};
+
+if (iterable) {
+  URLSearchParamsProto[Symbol.iterator] = URLSearchParamsProto.entries;
+}
+
+/*
+URLSearchParamsProto.toBody = function() {
+  return new Blob(
+    [this.toString()],
+    {type: 'application/x-www-form-urlencoded'}
+  );
+};
+*/
+
+URLSearchParamsProto.toJSON = function toJSON() {
+  return {};
+};
+
+URLSearchParamsProto.toString = function toString() {
+  var dict = this[secret], query = [], i, key, name, value;
+  for (key in dict) {
+    name = encode(key);
+    for (
+      i = 0,
+      value = dict[key];
+      i < value.length; i++
+    ) {
+      query.push(name + '=' + encode(value[i]));
+    }
+  }
+  return query.join('&');
+};
+
+module.exports = global.URLSearchParams || URLSearchParams;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 6 */
+/* 3 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(global) {
 
-var required = __webpack_require__(7)
-  , qs = __webpack_require__(8)
+var required = __webpack_require__(8)
+  , qs = __webpack_require__(9)
   , protocolre = /^([a-z][a-z0-9.+-]*:)?(\/\/)?([\S\s]*)/i
   , slashes = /^[A-Za-z][A-Za-z0-9+-.]*:\/\//;
 
@@ -1666,150 +1254,10 @@ Url.qs = qs;
 
 module.exports = Url;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Check if we're required to add a port number.
- *
- * @see https://url.spec.whatwg.org/#default-port
- * @param {Number|String} port Port number we need to check
- * @param {String} protocol Protocol we need to check against.
- * @returns {Boolean} Is it a default port for the given protocol
- * @api private
- */
-module.exports = function required(port, protocol) {
-  protocol = protocol.split(':')[0];
-  port = +port;
-
-  if (!port) return false;
-
-  switch (protocol) {
-    case 'http':
-    case 'ws':
-    return port !== 80;
-
-    case 'https':
-    case 'wss':
-    return port !== 443;
-
-    case 'ftp':
-    return port !== 21;
-
-    case 'gopher':
-    return port !== 70;
-
-    case 'file':
-    return false;
-  }
-
-  return port !== 0;
-};
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var has = Object.prototype.hasOwnProperty
-  , undef;
-
-/**
- * Decode a URI encoded string.
- *
- * @param {String} input The URI encoded string.
- * @returns {String} The decoded string.
- * @api private
- */
-function decode(input) {
-  return decodeURIComponent(input.replace(/\+/g, ' '));
-}
-
-/**
- * Simple query string parser.
- *
- * @param {String} query The query string that needs to be parsed.
- * @returns {Object}
- * @api public
- */
-function querystring(query) {
-  var parser = /([^=?&]+)=?([^&]*)/g
-    , result = {}
-    , part;
-
-  while (part = parser.exec(query)) {
-    var key = decode(part[1])
-      , value = decode(part[2]);
-
-    //
-    // Prevent overriding of existing properties. This ensures that build-in
-    // methods like `toString` or __proto__ are not overriden by malicious
-    // querystrings.
-    //
-    if (key in result) continue;
-    result[key] = value;
-  }
-
-  return result;
-}
-
-/**
- * Transform a query string to an object.
- *
- * @param {Object} obj Object that should be transformed.
- * @param {String} prefix Optional prefix.
- * @returns {String}
- * @api public
- */
-function querystringify(obj, prefix) {
-  prefix = prefix || '';
-
-  var pairs = []
-    , value
-    , key;
-
-  //
-  // Optionally prefix with a '?' if needed
-  //
-  if ('string' !== typeof prefix) prefix = '?';
-
-  for (key in obj) {
-    if (has.call(obj, key)) {
-      value = obj[key];
-
-      //
-      // Edge cases where we actually want to encode the value to an empty
-      // string instead of the stringified value.
-      //
-      if (!value && (value === null || value === undef || isNaN(value))) {
-        value = '';
-      }
-
-      pairs.push(encodeURIComponent(key) +'='+ encodeURIComponent(value));
-    }
-  }
-
-  return pairs.length ? prefix + pairs.join('&') : '';
-}
-
-//
-// Expose the module.
-//
-exports.stringify = querystringify;
-exports.parse = querystring;
-
-
-/***/ }),
-/* 9 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2040,6 +1488,275 @@ exports.parseUrl = function (str, opts) {
 
 
 /***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var kort= __webpack_require__(0)
+    , URL = __webpack_require__(4)
+    , queryString = __webpack_require__(5)
+    , vis= __webpack_require__(13);
+
+function main() { 
+  
+  var options= {
+    contextmenu: true,
+    contextmenuWidth: 140,
+    contextmenuItems: [
+    {
+      text: 'Adgangsadresse?',
+      callback: kort.nærmesteAdgangsadresse(vis.getMap)
+    },
+    {
+      text: 'Vej?',
+      callback: kort.nærmesteNavngivneVej(vis.getMap)
+    },
+    {
+      text: 'Hvor?',
+      callback: kort.hvor(vis.getMap)
+    }
+    ]
+  };
+
+  let url= new URL(window.location.href);
+  let query= queryString.parse(url.query);
+  let korttype= query.kort;
+  if (korttype) {
+    options.baselayer= korttype;
+  }
+
+  fetch('/getticket').then(function (response) {
+    response.text().then(function (ticket) {      
+      vis.setMap(kort.viskort('map', ticket, options));
+      var center= kort.beregnCenter();
+      vis.getMap().setView(center,2);
+      vis.visData(url);
+    });
+  });  
+}
+
+main();
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var anvendelseskoder= {};
+function initanvendelseskoder() {
+anvendelseskoder[110]= "Stuehus til landbrugsejendom";
+anvendelseskoder[120]= "Fritliggende eenfamilieshus (parcelhus)";
+anvendelseskoder[130]= "Række-, kæde-, eller dobbelthus (lodret adskillelse mellem enhederne)";
+anvendelseskoder[140]= "Etageboligbebyggelse (flerfamiliehus, herunder to-familiehus (vandret adskillelse mellem enhederne)";
+anvendelseskoder[150]= "Kollegium";
+anvendelseskoder[160]= "Døgninstitution (plejehjem, alderdomshjem, børne- eller ungdomshjem)";
+anvendelseskoder[190]= "Anden bygning til helårsbeboelse";
+anvendelseskoder[210]= "Bygning til erhvervsmæssig produktion vedrørende landbrug, gartneri, råstofudvinding o. lign";
+anvendelseskoder[220]= "Bygning til erhvervsmæssig produktion vedrørende industri, håndværk m.v. (fabrik, værksted o. lign.)";
+anvendelseskoder[230]= "El-, gas-, vand- eller varmeværk, forbrændingsanstalt m.v.";
+anvendelseskoder[290]= "Anden bygning til landbrug, industri etc.";
+anvendelseskoder[310]= "Transport- og garageanlæg (fragtmandshal, lufthavnsbygning, banegårdsbygning, parkeringshus). Garage med plads til et eller to køretøjer registreres med anvendelseskode 910";
+anvendelseskoder[320]= "Bygning til kontor, handel, lager, herunder offentlig administration";
+anvendelseskoder[330]= "Bygning til hotel, restaurant, vaskeri, frisør og anden servicevirksomhed";
+anvendelseskoder[390]= "Anden bygning til transport, handel etc.";
+anvendelseskoder[410]= "Bygning til biograf, teater, erhvervsmæssig udstilling, bibliotek, museum, kirke o. lign.";
+anvendelseskoder[420]= "Bygning til undervisning og forskning (skole, gymnasium, forskningslaboratorium o. lign.)";
+anvendelseskoder[430]= "Bygning til hospital, sygehjem, fødeklinik o. lign.";
+anvendelseskoder[440]= "Bygning til daginstitution";
+anvendelseskoder[490]= "Bygning til anden institution, herunder kaserne, fængsel o. lign.";
+anvendelseskoder[510]= "Sommerhus";
+anvendelseskoder[520]= "Bygning til ferieformål m.v., bortset fra sommerhus (feriekoloni, vandrehjem o. lign.)";
+anvendelseskoder[530]= "Bygning i forbindelse med idrætsudøvelse (klubhus, idrætshal, svømmehal o. lign.)";
+anvendelseskoder[540]= "Kolonihavehus";
+anvendelseskoder[590]= "Anden bygning til fritidsformål";
+anvendelseskoder[910]= "Garage med plads til et eller to køretøjer";
+anvendelseskoder[920]= "Carport";
+anvendelseskoder[930]= "Udhus";
+}
+initanvendelseskoder();
+exports.anvendelseskoder= anvendelseskoder;
+
+
+var klassifikationskoder= {};
+function initklassifikationskoder() {
+klassifikationskoder[1110]= "Tank (Produkt på væskeform)";
+klassifikationskoder[1120]= "Silo (Produkt på fast form)";
+klassifikationskoder[1130]= "Gasbeholder (Produkt på gasform)";
+klassifikationskoder[1140]= "Affaldsbeholder";
+klassifikationskoder[1210]= "Vindmølle (elproducerende)";
+klassifikationskoder[1220]= "Slanger til jordvarme";
+klassifikationskoder[1230]= "Solvarme-/ solcelleanlæg";
+klassifikationskoder[1240]= "Nødstrømsforsyningsanlæg";
+klassifikationskoder[1250]= "Transformerstation";
+klassifikationskoder[1260]= "Elskab";
+klassifikationskoder[1265]= "Naturgasfyr";
+klassifikationskoder[1270]= "Andet energiproducerende eller - distribuerende anlæg";
+klassifikationskoder[1310]= "Vandtårn";
+klassifikationskoder[1320]= "Pumpestation";
+klassifikationskoder[1330]= "Swimmingpool";
+klassifikationskoder[1340]= "Private rensningsanlæg f.eks. pileanlæg, nedsivningsanlæg";
+klassifikationskoder[1350]= "Offentlige rensningsanlæg";
+klassifikationskoder[1360]= "Regnvandsanlæg";
+klassifikationskoder[1905]= "Legeplads";
+klassifikationskoder[1910]= "Teknikhus";
+klassifikationskoder[1915]= "Døgnpostboks";
+klassifikationskoder[1920]= "Køleanlæg (herunder aircondition)";
+klassifikationskoder[1925]= "Kunstværk (springvand, mindesmærker m.v.)";
+klassifikationskoder[1930]= "Sirene / mast med sirene";
+klassifikationskoder[1935]= "Skilt";
+klassifikationskoder[1940]= "Antenne / mast fx tv, radio- og telekommunikation";
+klassifikationskoder[1945]= "Dambrug";
+klassifikationskoder[1950]= "Møddingsanlæg";
+klassifikationskoder[1955]= "Andet teknisk anlæg";
+}
+initklassifikationskoder();
+exports.klassifikationskoder= klassifikationskoder;
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Check if we're required to add a port number.
+ *
+ * @see https://url.spec.whatwg.org/#default-port
+ * @param {Number|String} port Port number we need to check
+ * @param {String} protocol Protocol we need to check against.
+ * @returns {Boolean} Is it a default port for the given protocol
+ * @api private
+ */
+module.exports = function required(port, protocol) {
+  protocol = protocol.split(':')[0];
+  port = +port;
+
+  if (!port) return false;
+
+  switch (protocol) {
+    case 'http':
+    case 'ws':
+    return port !== 80;
+
+    case 'https':
+    case 'wss':
+    return port !== 443;
+
+    case 'ftp':
+    return port !== 21;
+
+    case 'gopher':
+    return port !== 70;
+
+    case 'file':
+    return false;
+  }
+
+  return port !== 0;
+};
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var has = Object.prototype.hasOwnProperty
+  , undef;
+
+/**
+ * Decode a URI encoded string.
+ *
+ * @param {String} input The URI encoded string.
+ * @returns {String} The decoded string.
+ * @api private
+ */
+function decode(input) {
+  return decodeURIComponent(input.replace(/\+/g, ' '));
+}
+
+/**
+ * Simple query string parser.
+ *
+ * @param {String} query The query string that needs to be parsed.
+ * @returns {Object}
+ * @api public
+ */
+function querystring(query) {
+  var parser = /([^=?&]+)=?([^&]*)/g
+    , result = {}
+    , part;
+
+  while (part = parser.exec(query)) {
+    var key = decode(part[1])
+      , value = decode(part[2]);
+
+    //
+    // Prevent overriding of existing properties. This ensures that build-in
+    // methods like `toString` or __proto__ are not overriden by malicious
+    // querystrings.
+    //
+    if (key in result) continue;
+    result[key] = value;
+  }
+
+  return result;
+}
+
+/**
+ * Transform a query string to an object.
+ *
+ * @param {Object} obj Object that should be transformed.
+ * @param {String} prefix Optional prefix.
+ * @returns {String}
+ * @api public
+ */
+function querystringify(obj, prefix) {
+  prefix = prefix || '';
+
+  var pairs = []
+    , value
+    , key;
+
+  //
+  // Optionally prefix with a '?' if needed
+  //
+  if ('string' !== typeof prefix) prefix = '?';
+
+  for (key in obj) {
+    if (has.call(obj, key)) {
+      value = obj[key];
+
+      //
+      // Edge cases where we actually want to encode the value to an empty
+      // string instead of the stringified value.
+      //
+      if (!value && (value === null || value === undef || isNaN(value))) {
+        value = '';
+      }
+
+      pairs.push(encodeURIComponent(key) +'='+ encodeURIComponent(value));
+    }
+  }
+
+  return pairs.length ? prefix + pairs.join('&') : '';
+}
+
+//
+// Expose the module.
+//
+exports.stringify = querystringify;
+exports.parse = querystring;
+
+
+/***/ }),
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2248,6 +1965,418 @@ module.exports = function (encodedURI) {
 		return customDecodeURIComponent(encodedURI);
 	}
 };
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var kort= __webpack_require__(0)
+    , util = __webpack_require__(1)
+    , URL = __webpack_require__(4)
+    , queryString = __webpack_require__(5);
+
+var map= null;
+
+exports.setMap= function (m) {
+  map= m;
+}
+
+exports.getMap= function () {
+  return map;
+}
+
+exports.visData= function(url) {
+
+  if (url.hostname === 'localhost') {
+    url.set('host','vis.aws.dk:80'); 
+  }
+
+  let query= queryString.parse(url.query);
+
+  let overskrift= query.overskrift;
+  let vispopup= query.vispopup;
+
+  let host= query.host;
+  if (host) {
+    url.set('host',host);
+  } 
+
+  let miljø= query.m;
+  if (!miljø) miljø= 'dawa';
+  url.host= url.host.replace('vis',miljø);
+  let arr= url.pathname.split('/');
+  let ressource= arr[1];
+
+  query.format= 'geojson';
+  if (ressource === 'navngivneveje') query.geometri= 'begge'; 
+  if (nestet(ressource)) {
+    query.struktur= 'nestet';
+  }
+  else {
+    delete query.struktur;
+  }
+  url.set('query',queryString.stringify(query));
+
+  let urltext= url.toString();
+
+  fetch(urltext).then( function(response) {
+    response.json().then( function ( data ) {
+      if (data.type === "FeatureCollection" && data.features.length === 0) return;
+      let style=  getDefaultStyle(ressource, false);
+      var geojsonlayer= L.geoJson(data, {style: style, onEachFeature: eachFeature(ressource,overskrift,vispopup), pointToLayer: pointToLayer}); 
+      geojsonlayer.addTo(map);
+      map.fitBounds(geojsonlayer.getBounds());
+       
+      var zoom= map.getZoom();
+      if (zoom >= 13) {
+        map.setZoom(11);
+      }
+    });
+  });
+}
+
+exports.visLag= function(lag) {
+
+  let svar= [];
+  for (var i= 0; i<lag.length; i++) {
+
+    let ressource= lag[i].ressource;
+    if (!map.getPane(ressource)) {
+      map.createPane(ressource);
+      map.getPane(ressource).style.zIndex= getzindex(ressource);
+    }
+    let url= new URL('https://vis.aws.dk/'+ressource);
+
+    let query= lag[i].parametre;
+
+    let overskrift= query.overskrift;
+    let vispopup= query.vispopup;
+
+    let host= query.host;
+    if (host) {
+      url.set('host',host);
+    } 
+
+    let miljø= query.m;
+    if (!miljø) miljø= 'dawa';
+    url.host= url.host.replace('vis',miljø);
+    let arr= url.pathname.split('/');
+
+    query.format= 'geojson';
+    if (ressource === 'navngivneveje') query.geometri= 'begge';
+    query.struktur= 'nestet';
+    url.set('query',queryString.stringify(query));
+
+    let urltext= url.toString();
+
+    svar.push(fetch(urltext));
+  }
+
+  Promise.all(svar).then( function(responses) {
+    for (let i= 0; i<responses.length; i++) {
+      responses[i]= responses[i].json();
+    }
+    Promise.all(responses).then( function ( data ) {
+      let layers= [];
+      for (let j= 0; j<data.length; j++) {
+        if (data[j].type === "FeatureCollection" && data[j].features.length === 0) return;
+        let style=  getDefaultStyle(lag[j].ressource, true);
+        var geojsonlayer= L.geoJson(data[j], {style: style, pane: lag[j].ressource, onEachFeature: eachFeature(lag[j].ressource,lag[j].parametre.overskrift,lag[j].parametre.vispopup), pointToLayer: pointToLayer});
+        geojsonlayer.addTo(map);
+        layers.push(geojsonlayer);
+      };
+
+      map.fitBounds(L.featureGroup(layers).getBounds());
+       
+      var zoom= map.getZoom();
+      if (zoom >= 13) {
+        map.setZoom(11);
+      }
+    });
+  }); 
+}
+
+function nestet(ressource) {
+  let erNestet= false
+  switch (ressource) {
+  default:  
+    erNestet=true;
+  }
+  return erNestet;
+}
+
+function danLabel2(overskrift, href, label) {
+  let tekst= "";
+  if (overskrift) {
+    tekst= overskrift + "<br/>" + label;
+  } 
+  else {
+    tekst= "<a href='" + href.replace('dawa','info') + "'>" + label + "</a>";
+  }
+  return tekst;
+}
+
+function visVisueltCenter(x,y,r) {
+  var marker= L.circleMarker(L.latLng(y, x),{color: 'black', fill: true, fillcolor: 'black', fillOpacity: 1.0, radius: r}).addTo(map);
+}
+
+function showPopup(vis,x,y,label) {
+  if (vis) {
+    var popup = L.popup()
+      .setLatLng(L.latLng(y,x))
+      .setContent(label)
+      .openOn(map); 
+  }
+}
+
+function eachFeature(ressource, overskrift, vispopup) {
+  return function (feature, layer) {
+    let label= "";
+    switch (ressource) {
+    case 'ejerlav':
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" + feature.properties.kode + ")");
+      layer.bindPopup(label);
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
+      break;
+    case 'jordstykker':
+      let kode= feature.properties.ejerlav.kode;
+      let navn= feature.properties.ejerlav.navn;
+      let nr= feature.properties.matrikelnr;
+      label= danLabel2(overskrift, feature.properties.href, nr + " " + navn + " (" + kode + ")");
+      layer.bindPopup(label);
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label); 
+     break;
+    case 'sogne':
+    case 'politikredse':
+    case 'retskredse':
+    case 'regioner':
+    case 'kommuner':
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" +feature.properties.kode + ")");
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label); 
+      break;
+    case 'afstemningsomraader': 
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn);
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
+      map.createPane("locationMarker");
+      map.getPane("locationMarker").style.zIndex = getzindex('adgangsadresser');
+      var marker= L.circleMarker(L.latLng(feature.properties.afstemningssted.adgangsadresse.koordinater[1], feature.properties.afstemningssted.adgangsadresse.koordinater[0]),{color: 'red', fill: true, fillcolor: 'red', fillOpacity: 1.0, radius: 3,  pane: "locationMarker" }).addTo(map);      
+      marker.bindPopup(danLabel2(overskrift, feature.properties.afstemningssted.adgangsadresse.href, feature.properties.afstemningssted.navn + "<br/>" + feature.properties.afstemningssted.adgangsadresse.adressebetegnelse.replace(',','<br/>'))); 
+      break;
+    case 'menighedsraadsafstemningsomraader':
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" +feature.properties.nummer + ")");
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
+      break;      
+    case 'opstillingskredse':
+    case 'storkredse':
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" +feature.properties.nummer + ")");
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
+      break; 
+    case 'valglandsdele':
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + " (" +feature.properties.bogstav + ")");
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label); 
+      break;      
+    case 'supplerendebynavne2': 
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn);
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
+      break;    
+    case 'postnumre': 
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.nr + " " + feature.properties.navn); 
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
+      break;
+    case 'adresser': 
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.adressebetegnelse.replace(',','<br/>'));
+      showPopup(vispopup, feature.properties.adgangsadresse.adgangspunkt.koordinater[0], feature.properties.adgangsadresse.adgangspunkt.koordinater[1], label);
+      layer.bindPopup(label);
+      L.circleMarker(L.latLng(feature.properties.adgangsadresse.vejpunkt.koordinater[1], feature.properties.adgangsadresse.vejpunkt.koordinater[0]),{color: 'blue', fill: true, fillcolor: 'blue', fillOpacity: 1.0, radius: 2}).addTo(map);      
+      break;
+    case 'adgangsadresser':      
+      label= danLabel2(overskrift, feature.properties.href,util.formatAdgangsadresse(feature.properties)); 
+      showPopup(vispopup, feature.properties.adgangspunkt.koordinater[0], feature.properties.adgangspunkt.koordinater[1], label);
+      layer.bindPopup(label); 
+      L.circleMarker(L.latLng(feature.properties.vejpunkt.koordinater[1], feature.properties.vejpunkt.koordinater[0]),{color: 'blue', fill: true, fillcolor: 'blue', fillOpacity: 1.0, radius: 2}).addTo(map);      
+      break;      
+    case 'stednavne':
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn + '<br/>(' +  feature.properties.hovedtype  + ', ' + feature.properties.undertype + ")");  
+      layer.bindPopup(label);
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label); 
+      break;    
+    case 'stednavne2':
+      label= danLabel2(overskrift, feature.properties.sted.href, feature.properties.navn + '<br>(' +  feature.properties.sted.hovedtype  + ', ' + feature.properties.sted.undertype + ")");  
+      layer.bindPopup(label);    
+      visVisueltCenter(feature.properties.sted.visueltcenter[0], feature.properties.sted.visueltcenter[1], 1);
+      showPopup(vispopup, feature.properties.sted.visueltcenter[0], feature.properties.sted.visueltcenter[1], label);  
+      break;      
+    case 'steder':
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.primærtnavn + '<br>(' +  feature.properties.hovedtype  + ', ' + feature.properties.undertype + ")");  
+      layer.bindPopup(label);    
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);  
+      break;    
+    case 'navngivneveje':
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn);   
+      layer.bindPopup(label);
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 3); 
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
+      if (feature.properties.beliggenhed.vejtilslutningspunkter) {
+        let punkter= feature.properties.beliggenhed.vejtilslutningspunkter.coordinates;
+        for (var i= 0; i<punkter.length;i++) {
+           var marker= L.circleMarker(L.latLng(punkter[i][1], punkter[i][0]), {color: 'blue', fillColor: 'blue', stroke: true, fillOpacity: 1.0, radius: 4, weight: 2, opacity: 1.0}).addTo(map);
+        }
+      }
+      break;
+    case 'vejstykker':    
+      layer.bindPopup(danLabel2(overskrift, feature.properties.href, feature.properties.kode + " " + feature.properties.navn)); 
+      break;
+    default:       
+      if (feature.properties.visueltcenter_x && feature.properties.visueltcenter_y) {      
+        visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
+      }      
+      if (feature.properties.visueltcenter) {      
+        visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1]); 
+      }
+    }
+    layer.on('contextmenu', function(e) {map.contextmenu.showAt(e.latlng)}); 
+  }
+}
+
+function pointToLayer(geoJsonPoint, latlng) {
+  return L.circleMarker(latlng);
+} 
+
+var adressestyle= {
+  color: "red",
+  opacity: 1.0,
+  weight: 1,
+  fill: true,
+  fillColor: 'red',
+  fillOpacity: 1.0,
+  radius: 5
+}
+
+function getDefaultStyle(ressource, withpane) {
+  return function (feature) {
+    let style= {};
+    switch (ressource) {
+    case 'jordstykker':
+    case 'ejerlav':
+      style.color= "green";
+      style.fillColor= 'green';
+      break;
+    case 'sogne':
+    case 'politikredse':
+    case 'retskredse':
+    case 'regioner':
+    case 'opstillingskredse':
+    case 'storkredse':
+    case 'valglandsdele':
+    case 'afstemningsomraader':
+    case 'menighedsraadsafstemningsomraader':
+    case 'kommuner':
+      style.color= "green";
+      style.fillColor= 'green';
+      break
+    case 'supplerendebynavne':
+      style.color= "green";
+      style.fillColor= 'green';
+      break;
+    case 'supplerendebynavne2': 
+      style.color= "green";
+      style.fillColor= 'green';
+      break;    
+    case 'postnumre': 
+      style.color= "green";
+      style.fillColor= 'green'; 
+      break;
+    case 'adresser':
+    case 'adgangsadresser':
+      if (withpane) {
+        adressestyle.pane= ressource;
+      }
+      style= adressestyle;
+      break;      
+    case 'steder':  
+    case 'stednavne': 
+    case 'stednavne2':
+      style.color= "green";
+      style.fillColor= 'green';  
+      break;    
+    case 'navngivneveje':
+    case 'vejstykker':
+      style.color= "blue";
+      style.fillColor= 'blue';   
+      break;
+    default:
+      break;
+    }
+    return style;
+  }
+}
+
+function getzindex(ressource) {
+  let zindex= 501;
+  switch (ressource) {
+  case 'jordstykker':
+  case 'ejerlav':
+    zindex=530;
+    break;
+  case 'sogne':
+  case 'politikredse':
+  case 'retskredse':
+  case 'regioner':
+  case 'opstillingskredse':
+  case 'storkredse':
+  case 'valglandsdele':
+  case 'afstemningsomraader':
+  case 'menighedsraadsafstemningsomraader':
+  case 'kommuner':
+    zindex= 510;
+    break
+  case 'supplerendebynavne2':
+  case 'supplerendebynavne':
+    zindex= 520;
+    break; 
+  case 'postnumre':
+    zindex= 510; 
+    break;
+  case 'adresser':
+  case 'adgangsadresser':
+    zindex= 570;
+    break;      
+  case 'steder':  
+  case 'stednavne': 
+  case 'stednavne2':
+    zindex= 515;  
+    break;    
+  case 'navngivneveje':
+  case 'vejstykker':
+    zindex= 560;  
+    break;
+  default:
+    break;
+  }
+  return zindex;
+}
 
 
 /***/ })

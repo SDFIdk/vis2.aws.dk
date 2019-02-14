@@ -22,6 +22,19 @@ app.get('/', function (req, res) {
   });
 });
 
+
+app.get('/multi', function (req, res) {
+  //console.log(req);
+  res.sendFile(__dirname + "/public/multi.html", function (err) {
+    if (err) {
+      console.log('fejl: ' + err);
+    }
+    else {
+      console.log('multi.html');
+    }
+  });
+}); 
+
 app.get('/getticket', function (req, res, next) { 
   kf.getTicket(usr,pw).then((ticket) => {
     res.status(200).send(ticket);

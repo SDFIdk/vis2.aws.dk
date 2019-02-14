@@ -5,7 +5,7 @@ var kort= require('dawa-kort')
     , queryString = require('query-string')
     , vis= require('./vis.js');
 
-function main() { 
+function multi() { 
   
   var options= {
     contextmenu: true,
@@ -33,14 +33,17 @@ function main() {
     options.baselayer= korttype;
   }
 
+  let lag= JSON.parse(query.lag);
+  console.log(lag);
+
   fetch('/getticket').then(function (response) {
     response.text().then(function (ticket) {      
       vis.setMap(kort.viskort('map', ticket, options));
       var center= kort.beregnCenter();
       vis.getMap().setView(center,2);
-      vis.visData(url);
+      vis.visLag(lag);
     });
   });  
 }
 
-main();
+multi();
