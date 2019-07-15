@@ -2199,6 +2199,12 @@ function eachFeature(ressource, overskrift, vispopup) {
       layer.bindPopup(label); 
       visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
       showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
+      break;          
+    case 'landsdele': 
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.navn);
+      layer.bindPopup(label); 
+      visVisueltCenter(feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], 1); 
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);
       break;    
     case 'postnumre': 
       label= danLabel2(overskrift, feature.properties.href, feature.properties.nr + " " + feature.properties.navn); 
@@ -2307,6 +2313,10 @@ function getDefaultStyle(ressource, withpane) {
       style.color= "green";
       style.fillColor= 'green';
       break;    
+    case 'landsdele': 
+      style.color= "green";
+      style.fillColor= 'green';
+      break;    
     case 'postnumre': 
       style.color= "green";
       style.fillColor= 'green'; 
@@ -2347,6 +2357,7 @@ function getzindex(ressource) {
   case 'politikredse':
   case 'retskredse':
   case 'regioner':
+  case 'landsdele':
   case 'opstillingskredse':
   case 'storkredse':
   case 'valglandsdele':
