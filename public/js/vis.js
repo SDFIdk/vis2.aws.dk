@@ -3,7 +3,8 @@
 var kort= require('dawa-kort')
     , util = require('dawa-util')
     , URL = require('url-parse')
-    , queryString = require('query-string');
+    , queryString = require('query-string')
+    , bbr= require('./bbrkodelister.js');
 
 var map= null;
 
@@ -13,6 +14,20 @@ exports.setMap= function (m) {
 
 exports.getMap= function () {
   return map;
+}
+
+
+function getRessource(url) {
+  url= new URL(url);
+  let arr= url.pathname.split('/');
+  let ressource= arr[1].toLowerCase();
+  console.log(arr);
+  console.log(ressource);
+  if (ressource === 'bbr') {
+    ressource= ressource + '/' + arr[2].toLowerCase();
+  }
+  console.log(ressource);
+  return ressource;
 }
 
 exports.visData= function(url) {
@@ -34,8 +49,7 @@ exports.visData= function(url) {
   let miljø= query.m;
   if (!miljø) miljø= 'dawa';
   url.host= url.host.replace('vis',miljø);
-  let arr= url.pathname.split('/');
-  let ressource= arr[1];
+  let ressource= getRessource(url);
 
   query.format= 'geojson';
   if (ressource === 'navngivneveje') query.geometri= 'begge'; 
@@ -280,6 +294,16 @@ function eachFeature(ressource, overskrift, vispopup) {
     case 'vejstykker':    
       layer.bindPopup(danLabel2(overskrift, feature.properties.href, feature.properties.kode + " " + feature.properties.navn)); 
       break;
+    case 'bbr/tekniskeanlaeg':      
+      label= danLabel2(overskrift, feature.properties.href,bbr.getKlassifikation(feature.properties.tek020Klassifikation) + ' fra ' + feature.properties.tek024Etableringsår); 
+      showPopup(vispopup, feature.properties.tek109Koordinat.coordinates[0], feature.properties.tek109Koordinat.coordinates[1], label);
+      layer.bindPopup(label); 
+     break;     
+    case 'bbr/bygninger':      
+      label= danLabel2(overskrift, feature.properties.href,bbr.getBygAnvendelse(feature.properties.byg021BygningensAnvendelse) + ' fra ' + feature.properties.byg026Opførelsesår); 
+      showPopup(vispopup, feature.properties.byg404Koordinat.coordinates[0], feature.properties.byg404Koordinat.coordinates[1], label);
+      layer.bindPopup(label); 
+     break;     
     default:       
       if (feature.properties.visueltcenter_x && feature.properties.visueltcenter_y) {      
         visVisueltCenter(feature.properties.visueltcenter_x, feature.properties.visueltcenter_y); 
@@ -302,6 +326,26 @@ var adressestyle= {
   weight: 1,
   fill: true,
   fillColor: 'red',
+  fillOpacity: 1.0,
+  radius: 5
+}
+
+var tekniskanlægstyle= {
+  color: "black",
+  opacity: 1.0,
+  weight: 1,
+  fill: true,
+  fillColor: 'black',
+  fillOpacity: 1.0,
+  radius: 5
+}
+
+var bygningstyle= {
+  color: "green",
+  opacity: 1.0,
+  weight: 1,
+  fill: true,
+  fillColor: 'green',
   fillOpacity: 1.0,
   radius: 5
 }
@@ -350,7 +394,13 @@ function getDefaultStyle(ressource, withpane) {
         adressestyle.pane= ressource;
       }
       style= adressestyle;
-      break;      
+      break; 
+    case 'bbr/tekniskeanlaeg':   
+      style= tekniskanlægstyle;
+      break;
+    case 'bbr/bygninger':   
+      style= bygningstyle;
+      break;
     case 'steder':  
     case 'stednavne': 
     case 'stednavne2':
