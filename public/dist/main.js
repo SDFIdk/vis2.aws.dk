@@ -2265,8 +2265,15 @@ function eachFeature(ressource, overskrift, vispopup) {
         }
       }
       break;
-    case 'vejstykker':    
-      layer.bindPopup(danLabel2(overskrift, feature.properties.href, feature.properties.kode + " " + feature.properties.navn)); 
+    case 'vejstykker':
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.kode + " " + feature.properties.navn)    
+      layer.bindPopup(label);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label); 
+      break;
+    case 'vejnavnpostnummerrelationer':
+      label= danLabel2(overskrift, feature.properties.href, feature.properties.betegnelse);     
+      layer.bindPopup(label);
+      showPopup(vispopup, feature.properties.visueltcenter[0], feature.properties.visueltcenter[1], label);  
       break;
     case 'bbr/tekniskeanlaeg':      
       label= danLabel2(overskrift, feature.properties.href,bbr.getKlassifikation(feature.properties.tek020Klassifikation) + ' fra ' + feature.properties.tek024Etableringsår); 
@@ -2383,6 +2390,7 @@ function getDefaultStyle(ressource, withpane) {
       break;    
     case 'navngivneveje':
     case 'vejstykker':
+    case 'vejnavnpostnummerrelationer': 
       style.color= "blue";
       style.fillColor= 'blue';   
       break;
@@ -2431,6 +2439,7 @@ function getzindex(ressource) {
     break;    
   case 'navngivneveje':
   case 'vejstykker':
+  case 'vejnavnpostnummerrelationer': 
     zindex= 560;  
     break;
   default:
