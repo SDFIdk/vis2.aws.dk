@@ -33,7 +33,7 @@ function getRessource(url) {
 exports.visData= function(url) {
 
   if (url.hostname === 'localhost') {
-    url.set('host','vis.aws.dk:80'); 
+    url.set('host','vis.dataforsyningen.dk:80'); 
   }
 
   let query= queryString.parse(url.query);
@@ -48,7 +48,8 @@ exports.visData= function(url) {
 
   let miljø= query.m;
   if (!miljø) miljø= 'dawa';
-  url.host= url.host.replace('vis',miljø);
+  //url.host= url.host.replace('vis',miljø);
+  url.host = 'api.dataforsyningen.dk';
   let ressource= getRessource(url);
 
   query.format= 'geojson';
