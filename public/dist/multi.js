@@ -121,7 +121,7 @@ exports.viskort = function(id,ticket,options) {
   var map = new L.Map(id, options);
 
   function danKort(service,layer,styles,transparent) {
-		return L.tileLayer.wms('https://kortforsyningen.kms.dk/service', 
+		return L.tileLayer.wms('https://api.dataforsyningen.dk/service', 
 			{
 				format: 'image/png',
 				maxZoom: 14,
