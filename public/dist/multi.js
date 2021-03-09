@@ -321,7 +321,7 @@ exports.nærmesteBygning= function(getMap) {
       var bygning= bygninger[0];
       var punkt=  L.latLng(bygning.bygningspunkt.koordinater[1], bygning.bygningspunkt.koordinater[0]);
       var marker= L.circleMarker(punkt, {color: 'blue', fillColor: 'blue', stroke: true, fillOpacity: 1.0, radius: 4, weight: 2, opacity: 1.0}).addTo(getMap());//defaultpointstyle);
-      var popup= marker.bindPopup(L.popup().setContent("<a href='" + url.replace('dawa','info') + "'>" + dawaois.anvendelseskoder[bygning.BYG_ANVEND_KODE] + " fra " + bygning.OPFOERELSE_AAR + "</a>"),{autoPan: true});
+      var popup= marker.bindPopup(L.popup().setContent("<a href='" + url.replace('api','info') + "'>" + dawaois.anvendelseskoder[bygning.BYG_ANVEND_KODE] + " fra " + bygning.OPFOERELSE_AAR + "</a>"),{autoPan: true});
       
       getMap().setView(punkt,12);
       popup.openPopup();
@@ -1995,7 +1995,7 @@ exports.getMap= function () {
 exports.visData= function(url) {
 
   if (url.hostname === 'localhost') {
-    url.set('host','vis.aws.dk:80'); 
+    url.set('host','vis.dataforsyningen.dk:80'); 
   }
 
   let query= queryString.parse(url.query);
@@ -2010,9 +2010,11 @@ exports.visData= function(url) {
 
   let miljø= query.m;
   if (!miljø) miljø= 'dawa';
-  url.host= url.host.replace('vis',miljø);
-  let arr= url.pathname.split('/');
-  let ressource= arr[1];
+  //  url.host= url.host.replace('vis',miljø);
+  // let arr= url.pathname.split('/');
+  // let ressource= arr[1];
+  url.host = 'api.dataforsyningen.dk';
+  let ressource= getRessource(url);
 
   query.format= 'geojson';
   if (ressource === 'navngivneveje') query.geometri= 'begge'; 
@@ -2066,7 +2068,8 @@ exports.visLag= function(lag) {
 
     let miljø= query.m;
     if (!miljø) miljø= 'dawa';
-    url.host= url.host.replace('vis',miljø);
+    //url.host= url.host.replace('vis',miljø);
+    url.host = 'api.dataforsyningen.dk';
     let arr= url.pathname.split('/');
 
     query.format= 'geojson';
@@ -2118,7 +2121,7 @@ function danLabel2(overskrift, href, label) {
     tekst= overskrift + "<br/>" + label;
   } 
   else {
-    tekst= "<a href='" + href.replace('dawa','info') + "'>" + label + "</a>";
+    tekst= "<a href='" + href.replace('api','info') + "'>" + label + "</a>";
   }
   return tekst;
 }
