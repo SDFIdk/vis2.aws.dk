@@ -90,7 +90,7 @@ exports.visLag= function(lag) {
       map.createPane(ressource);
       map.getPane(ressource).style.zIndex= getzindex(ressource);
     }
-    let url= new URL('https://vis.aws.dk/'+ressource);
+    let url= new URL('https://vis.dataforsyningen.dk/'+ressource);
 
     let query= lag[i].parametre;
 
@@ -104,7 +104,8 @@ exports.visLag= function(lag) {
 
     let miljø= query.m;
     if (!miljø) miljø= 'dawa';
-    url.host= url.host.replace('vis',miljø);
+    //url.host= url.host.replace('vis',miljø);
+    url.host = 'api.dataforsyningen.dk';
     let arr= url.pathname.split('/');
 
     query.format= 'geojson';
@@ -156,7 +157,7 @@ function danLabel2(overskrift, href, label) {
     tekst= overskrift + "<br/>" + label;
   } 
   else {
-    tekst= "<a href='" + href.replace('dawa','info') + "'>" + label + "</a>";
+    tekst= "<a href='" + href.replace('api','info') + "'>" + label + "</a>";
   }
   return tekst;
 }
