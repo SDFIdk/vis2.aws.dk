@@ -36,14 +36,12 @@ function multi() {
   let lag= JSON.parse(query.lag);
   console.log(lag);
 
-  fetch('/getticket').then(function (response) {
-    response.text().then(function (ticket) {      
-      vis.setMap(kort.viskort('map', ticket, options));
-      var center= kort.beregnCenter();
-      vis.getMap().setView(center,2);
-      vis.visLag(lag);
-    });
-  });  
+  var token = 'd902ac31b1c3ff2d3e7f6aa7073c6c67';
+
+  vis.setMap(kort.viskort('map', token, options));
+  var center= kort.beregnCenter();
+  vis.getMap().setView(center,2);
+  vis.visLag(lag); 
 }
 
 multi();

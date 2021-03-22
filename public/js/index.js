@@ -33,14 +33,12 @@ function main() {
     options.baselayer= korttype;
   }
 
-  fetch('/getticket').then(function (response) {
-    response.text().then(function (ticket) {      
-      vis.setMap(kort.viskort('map', ticket, options));
-      var center= kort.beregnCenter();
-      vis.getMap().setView(center,2);
-      vis.visData(url);
-    });
-  });  
+  var token = 'd902ac31b1c3ff2d3e7f6aa7073c6c67';
+
+  vis.setMap(kort.viskort('map', token, options));
+  var center= kort.beregnCenter();
+  vis.getMap().setView(center,2);
+  vis.visData(url);
 }
 
 main();
