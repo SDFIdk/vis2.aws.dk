@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 6);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -70,221 +70,243 @@
 "use strict";
 
 
-var dawautil= __webpack_require__(1)
-  , URLSearchParams = __webpack_require__(2)  
-  , dawaois= __webpack_require__(7);
+var dawautil = __webpack_require__(1),
+    URLSearchParams = __webpack_require__(2),
+    dawaois = __webpack_require__(6);
 
 proj4.defs([
-  [
-    'EPSG:4326',
-    '+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees'],
-  [
-      'EPSG:25832',
-      '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs'
-  ]
+    [
+        'EPSG:4326',
+        '+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees'
+    ],
+    [
+        'EPSG:25832',
+        '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs'
+    ]
 ]);
 
-// var maxBounds= [
-//   [57.751949, 15.193240],
-//   [54.559132, 8.074720]
-// ];
-
 var maxBounds= [
-  [58.4744, 17.5575],
-  [53.015, 2.47833]
+    [58.4744, 17.5575],
+    [53.015, 2.47833]
 ];
 
 exports.maxBounds= maxBounds;
 
 exports.beregnCenter= function() {
-  var x= (maxBounds[0][0]-maxBounds[1][0])/2+maxBounds[1][0]+0.5,
-      y= (maxBounds[0][1]-maxBounds[1][1])/2+maxBounds[1][1];
-  return L.latLng(x,y);
+    var x= (maxBounds[0][0]-maxBounds[1][0])/2+maxBounds[1][0]+0.5,
+        y= (maxBounds[0][1]-maxBounds[1][1])/2+maxBounds[1][1];
+    return L.latLng(x,y);
 };
 
+var token = 'd902ac31b1c3ff2d3e7f6aa7073c6c67';
+var dafuser = 'SFOOITXITH';
+var dafpass = 'okay75..Spiiritual';
+
+
 exports.viskort = function(id,token,options) {
-	var crs = new L.Proj.CRS('EPSG:25832',
-    '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs', 
-    {
-        resolutions: [1638.4, 819.2, 409.6, 204.8, 102.4, 51.2, 25.6, 12.8, 6.4, 3.2, 1.6, 0.8, 0.4, 0.2, 0.1]
+
+    var crs = new L.Proj.CRS('EPSG:25832',
+        '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs', 
+        {
+            resolutions: [1638.4, 819.2, 409.6, 204.8, 102.4, 51.2, 25.6, 12.8, 6.4, 3.2, 1.6, 0.8, 0.4, 0.2, 0.1]
+        }
+    );
+
+    if (typeof options === 'undefined') {
+        options= {};
     }
-  );
+    options.crs= crs;
+    options.minZoom= 2;
+    options.maxZoom= 14;
+    options.maxBounds= maxBounds;
 
-  if (typeof options === 'undefined') {
-    options= {};
-  }
-  options.crs= crs;
-  options.minZoom= 2;
-  options.maxZoom= 14;
-  options.maxBounds= maxBounds;
+    var map = new L.Map(id, options);
 
-  var map = new L.Map(id, options);
-
-  function danKort(service,layer,styles,transparent) {
-	return L.tileLayer.wms('https://api.dataforsyningen.dk/' + service, 
-		{
-			format: 'image/png',
-			maxZoom: 14,
-			minZoom: 2,
-			token: token,
-	  		attribution: 'Data</a> fra <a href="https://dawadocs.dataforsyningen.dk">DAWA</a> | Map data &copy;  <a href="https://sdfe.dk">SDFE</a>',
-	  		layers: layer,
-	  		styles: styles,
-	  		transparent: transparent,
-	  		tiled: false
-	 		}
- 		);
-	}
-
- 	var skaermkort= danKort('topo_skaermkort', 'dtk_skaermkort', 'default', false)
-    , skaermkortdaempet= danKort('topo_skaermkort', 'dtk_skaermkort_daempet', 'default', false)
-    //, skaermkortgraa= danKort('topo_skaermkort', 'dtk_skaermkort_graa', 'default', false)
- 		, ortofoto= danKort('orto_foraar', 'orto_foraar', 'default', false)
- 	//	, quickortofoto= danKort('orto_foraar_temp', 'quickorto_2017_10cm', 'default', false)
-    , historisk1842til1899= danKort('topo20_hoeje_maalebordsblade', 'dtk_hoeje_maalebordsblade', 'default', false)
-    , historisk1928til1940= danKort('topo20_lave_maalebordsblade', 'dtk_lave_maalebordsblade', 'default', false)
- 		, matrikelkort= danKort('mat', 'Centroide,MatrikelSkel,OptagetVej','sorte_centroider,sorte_skel,default','true')
- 		, postnrkort= danKort('dagi', 'postdistrikt', 'default','true')
- 		, kommunekort= danKort('dagi', 'kommune', 'default','true');
-
-  var adressekort = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
-      transparent: true,
-      layers: 'adgangsadresser',
-      format: 'image/png',
-      continuousWorld: true
-    });
-  var vejpunktkort = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
-      transparent: true,
-      layers: 'vejpunkter',
-      format: 'image/png',
-      continuousWorld: true
-    });
-  var vejpunktlinjekort = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
-      transparent: true,
-      layers: 'vejpunktlinjer',
-      format: 'image/png',
-      continuousWorld: true
-    }); 
-  var vejnavnelinjer = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
-      transparent: true,
-      layers: 'vejnavnelinjer',
-      format: 'image/png',
-      continuousWorld: true
-    });
-  var vejnavneomraader = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
-      transparent: true,
-      layers: 'vejnavneomraader',
-      format: 'image/png',
-      continuousWorld: true
-    });
-  var vejtilslutningspunkter = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
-      transparent: true,
-      layers: 'vejtilslutningspunkter',
-      format: 'image/png',
-      continuousWorld: true
-    });
-
- 	 var baselayers = {
-    "Skærmkort": skaermkort,
-    "Skærmkort - dæmpet": skaermkortdaempet,
-   // "Skærmkort - gråt": skaermkortgraa,
-    "Ortofoto": ortofoto,
-   // "Quick ortofoto": quickortofoto,
-    "Historisk 1842-1899": historisk1842til1899,
-    "Historisk 1928-1940": historisk1928til1940
-  };
-
-  var overlays = {
-   	"Matrikler": matrikelkort,
-   	"Kommuner": kommunekort,
-   	"Postnumre": postnrkort,
-    "Adresser": adressekort,
-    "Vejpunkter": vejpunktkort,
-    "Vejpunktlinjer": vejpunktlinjekort,
-    "Vejnavnelinjer": vejnavnelinjer,
-    "Vejnavneområder": vejnavneomraader,
-    "Vejtilslutningspunkter": vejtilslutningspunkter
-  };
-
-
-  if (typeof options.baselayer === 'undefined') {
-    options.baselayer= "Skærmkort";
-  }
-  baselayers[options.baselayer].addTo(map);
-
-
-  L.control.layers(baselayers, overlays, {position: 'bottomleft'}).addTo(map);
-  //L.control.search().addTo(map);
-
-  map.on('baselayerchange', function (e) {
-    if (e.name === 'Skærmkort' ||
-    		e.name === "Skærmkort - dæmpet" ||
-        e.name === "Historisk 1842-1899"||
-        e.name === "Historisk 1928-1940") {
-        matrikelkort.setParams({
-            styles: 'sorte_centroider,sorte_skel,default'
-        });
-        postnrkort.setParams({
-            styles: 'default'
-        });
-        kommunekort.setParams({
-            styles: 'default'
-        });
-    } else if (e.name === 'Flyfoto') {
-        matrikelkort.setParams({
-            styles: 'gule_centroider,gule_skel,Gul_OptagetVej,default'
-        });
-        postnrkort.setParams({
-            styles: 'yellow'
-        });
-        kommunekort.setParams({
-            styles: 'yellow'
-        });
+    function danKort(service,layer,styles,transparent) {
+        return L.tileLayer.wms('https://api.dataforsyningen.dk/' + service, 
+            {
+                format: 'image/png',
+                maxZoom: 14,
+                minZoom: 2,
+                token: token,
+                attribution: 'Data</a> fra <a href="https://dawadocs.dataforsyningen.dk">DAWA</a> | Map data &copy;  <a href="http://sdfe.dk">SDFE</a>',
+                layers: layer,
+                styles: styles,
+                transparent: transparent,
+                tiled: false
+            }
+        );
     }
-  });
 
-	map.fitBounds(maxBounds);
-  //map.panTo(new L.LatLng(40.737, -73.923));
+    function danDAFKort(service,layer,styles,transparent) {
+        return L.tileLayer.wms('https://services.datafordeler.dk/' + service + '/1.0.0/WMS', 
 
-	return map;
+            {
+                format: 'image/png',
+                maxZoom: 14,
+                minZoom: 2,
+                username: dafuser,
+                password: dafpass,
+                attribution: 'Data</a> fra <a href="https://dawadocs.dataforsyningen.dk">DAWA</a> | Map data &copy;  <a href="http://sdfe.dk">SDFE</a>',
+                layers: layer,
+                styles: styles,
+                transparent: transparent,
+                tiled: false
+            }
+        );
+    }
+
+    var skaermkort = danKort('topo_skaermkort', 'dtk_skaermkort', 'default', false),
+        skaermkortdaempet = danKort('topo_skaermkort', 'dtk_skaermkort_daempet', 'default', false);
+
+
+    var matrikelkort = danDAFKort('Matrikel/MatrikelGaeldendeOgForeloebigWMS', 'Centroide_Gaeldende,MatrikelSkel_Gaeldende,OptagetVej_Gaeldende','Sorte_centroider,Sorte_skel,default', 'TRUE'),
+        postnrkort = danDAFKort('DAGIM/dagi', 'Postnummerinddeling', 'Postnummerinddeling_sort', 'TRUE'),
+        kommunekort = danDAFKort('DAGIM/dagi', 'Kommuneinddeling', 'Kommuneinddeling_sort', 'TRUE'),
+        historisk1842til1899 = danDAFKort('HoejeMaalebordsblade/topo20_hoeje_maalebordsblade', 'dtk_hoeje_maalebordsblade', 'default', 'FALSE'),
+        historisk1928til1940 = danDAFKort('LaveMaalebordsblade/topo20_lave_maalebordsblade', 'dtk_lave_maalebordsblade', 'default', 'FALSE'),
+        ortofoto = danDAFKort('GeoDanmarkOrto/orto_foraar', 'orto_foraar', 'default', 'FALSE');
+
+    var adressekort = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
+        transparent: true,
+        layers: 'adgangsadresser',
+        format: 'image/png',
+        continuousWorld: true
+        });
+
+    var vejpunktkort = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
+        transparent: true,
+        layers: 'vejpunkter',
+        format: 'image/png',
+        continuousWorld: true
+        });
+
+    var vejpunktlinjekort = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
+        transparent: true,
+        layers: 'vejpunktlinjer',
+        format: 'image/png',
+        continuousWorld: true
+        }); 
+
+    var vejnavnelinjer = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
+        transparent: true,
+        layers: 'vejnavnelinjer',
+        format: 'image/png',
+        continuousWorld: true
+        });
+
+    var vejnavneomraader = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
+        transparent: true,
+        layers: 'vejnavneomraader',
+        format: 'image/png',
+        continuousWorld: true
+        });
+
+    var vejtilslutningspunkter = L.tileLayer.wms('https://kort.aws.dk/geoserver/aws4_wms/wms', {
+        transparent: true,
+        layers: 'vejtilslutningspunkter',
+        format: 'image/png',
+        continuousWorld: true
+        });
+
+    var baselayers = {
+        "Skærmkort": skaermkort,
+        "Skærmkort - dæmpet": skaermkortdaempet,
+        "Ortofoto": ortofoto,
+        "Historisk 1842-1899": historisk1842til1899,
+        "Historisk 1928-1940": historisk1928til1940
+    };
+
+    var overlays = {
+      "Matrikler": matrikelkort,
+      "Kommuner": kommunekort,
+      "Postnumre": postnrkort,
+      "Adresser": adressekort,
+      "Vejpunkter": vejpunktkort,
+      "Vejpunktlinjer": vejpunktlinjekort,
+      "Vejnavnelinjer": vejnavnelinjer,
+      "Vejnavneområder": vejnavneomraader,
+      "Vejtilslutningspunkter": vejtilslutningspunkter
+    };
+
+
+    if (typeof options.baselayer === 'undefined') {
+      options.baselayer= "Skærmkort";
+    }
+    baselayers[options.baselayer].addTo(map);
+
+
+    L.control.layers(baselayers, overlays, {position: 'bottomleft'}).addTo(map);
+
+    map.on('baselayerchange', function (e) {
+        if (e.name === 'Skærmkort' ||
+            e.name === "Skærmkort - dæmpet" ||
+            e.name === "Historisk 1842-1899"||
+            e.name === "Historisk 1928-1940") {
+
+            matrikelkort.setParams({
+                styles: 'sorte_centroider,sorte_skel,default'
+            });
+            postnrkort.setParams({
+                styles: 'default'
+            });
+            kommunekort.setParams({
+                styles: 'default'
+            });
+        } else if (e.name === 'Flyfoto') {
+            matrikelkort.setParams({
+                styles: 'gule_centroider,gule_skel,Gul_OptagetVej,default'
+            });
+            postnrkort.setParams({
+                styles: 'yellow'
+            });
+            kommunekort.setParams({
+                styles: 'yellow'
+            });
+        }
+    });
+
+    map.fitBounds(maxBounds);
+
+    return map;
 };
 
 exports.etrs89towgs84= function(x,y) {
-	  return proj4('EPSG:25832','EPSG:4326', {x:x, y:y});  
+    return proj4('EPSG:25832','EPSG:4326', {x:x, y:y});  
 };
 
 exports.geojsontowgs84= function(geojson) {
-  return L.Proj.geoJson(geojson);
+    return L.Proj.geoJson(geojson);
 };
 
 
 exports.nærmesteAdgangsadresse= function(getMap) {
-  return function(e) {
-    fetch(dawautil.danUrl("https://api.dataforsyningen.dk/adgangsadresser/reverse",{x: e.latlng.lng, y: e.latlng.lat, medtagugyldige: true}))
-    .catch(function (error) {
-      alert(error.message);
-    })
-    .then(function(response) {
-      if (response.status >=400 && response.status <= 499) {
-        response.json().then(function (object) {
-          alert(object.type + ': ' + object.title);
-        });
-      }
-      else if (response.status >= 200 && response.status <=299 ){
-        return response.json();
-      }
-    }) 
-    .then( function ( adgangsadresse ) { 
+    return function(e) {
+        fetch(dawautil.danUrl("https://api.dataforsyningen.dk/adgangsadresser/reverse",{x: e.latlng.lng, y: e.latlng.lat, medtagugyldige: true}))
+        .catch(function (error) {
+          alert(error.message);
+        })
+        .then(function(response) {
+            if (response.status >=400 && response.status <= 499) {
+                response.json().then(function (object) {
+                    alert(object.type + ': ' + object.title);
+                });
+            }
+            else if (response.status >= 200 && response.status <=299 ){
+                return response.json();
+            }
+        }) 
+        .then( function ( adgangsadresse ) { 
 
-      var x= adgangsadresse.adgangspunkt.koordinater[1]
-        , y= adgangsadresse.adgangspunkt.koordinater[0];
-      var marker= L.circleMarker(L.latLng(x, y), {color: 'red', fillColor: 'red', stroke: true, fillOpacity: 1.0, radius: 4, weight: 2, opacity: 1.0}).addTo(getMap());//defaultpointstyle);
-      var popup= marker.bindPopup(L.popup().setContent("<a href='https://info.dataforsyningen.dk/adgangsadresser?id="+adgangsadresse.id+"'>" + dawautil.formatAdgangsadresse(adgangsadresse) + "</a>"),{autoPan: true});
-      if (adgangsadresse.vejpunkt) {
-        var vx= adgangsadresse.vejpunkt.koordinater[1]
-          , vy= adgangsadresse.vejpunkt.koordinater[0];
-        var vpmarker= L.circleMarker(L.latLng(vx, vy), {color: 'blue', fillColor: 'blue', stroke: true, fillOpacity: 1.0, radius: 4, weight: 2, opacity: 1.0}).addTo(getMap());//defaultpointstyle);
-        vpmarker.bindPopup(L.popup().setContent("<a href='https://info.dataforsyningen.dk/adgangsadresser?id="+adgangsadresse.id+"'>" + dawautil.formatAdgangsadresse(adgangsadresse) + "</a>"),{autoPan: true});
+          var x= adgangsadresse.adgangspunkt.koordinater[1]
+            , y= adgangsadresse.adgangspunkt.koordinater[0];
+          var marker= L.circleMarker(L.latLng(x, y), {color: 'red', fillColor: 'red', stroke: true, fillOpacity: 1.0, radius: 4, weight: 2, opacity: 1.0}).addTo(getMap());//defaultpointstyle);
+          var popup= marker.bindPopup(L.popup().setContent("<a href='https://info.dataforsyningen.dk/adgangsadresser?id="+adgangsadresse.id+"'>" + dawautil.formatAdgangsadresse(adgangsadresse) + "</a>"),{autoPan: true});
+          if (adgangsadresse.vejpunkt) {
+            var vx= adgangsadresse.vejpunkt.koordinater[1]
+              , vy= adgangsadresse.vejpunkt.koordinater[0];
+            var vpmarker= L.circleMarker(L.latLng(vx, vy), {color: 'blue', fillColor: 'blue', stroke: true, fillOpacity: 1.0, radius: 4, weight: 2, opacity: 1.0}).addTo(getMap());//defaultpointstyle);
+            vpmarker.bindPopup(L.popup().setContent("<a href='https://info.dataforsyningen.dk/adgangsadresser?id="+adgangsadresse.id+"'>" + dawautil.formatAdgangsadresse(adgangsadresse) + "</a>"),{autoPan: true});
       }
 
       getMap().setView(L.latLng(x, y),12);
@@ -320,7 +342,7 @@ exports.nærmesteBygning= function(getMap) {
       var bygning= bygninger[0];
       var punkt=  L.latLng(bygning.bygningspunkt.koordinater[1], bygning.bygningspunkt.koordinater[0]);
       var marker= L.circleMarker(punkt, {color: 'blue', fillColor: 'blue', stroke: true, fillOpacity: 1.0, radius: 4, weight: 2, opacity: 1.0}).addTo(getMap());//defaultpointstyle);
-      var popup= marker.bindPopup(L.popup().setContent("<a href='" + url.replace('api','info') + "'>" + dawaois.anvendelseskoder[bygning.BYG_ANVEND_KODE] + " fra " + bygning.OPFOERELSE_AAR + "</a>"),{autoPan: true});
+      var popup= marker.bindPopup(L.popup().setContent("<a href='" + url.replace('dawa','info') + "'>" + dawaois.anvendelseskoder[bygning.BYG_ANVEND_KODE] + " fra " + bygning.OPFOERELSE_AAR + "</a>"),{autoPan: true});
       
       getMap().setView(punkt,12);
       popup.openPopup();
@@ -418,6 +440,11 @@ exports.hvor= function(getMap) {
     promises[antal].format= formatdata("Politikreds", 'politikredse');
     antal++;
 
+    // afstemningsområde
+    promises.push(fetch(dawautil.danUrl("https://api.dataforsyningen.dk/afstemningsomraader/reverse",{x: e.latlng.lng, y: e.latlng.lat})));
+    promises[antal].format= formatafstemningsområde;
+    antal++;
+
     // opstillingskreds
     promises.push(fetch(dawautil.danUrl("https://api.dataforsyningen.dk/opstillingskredse/reverse",{x: e.latlng.lng, y: e.latlng.lat})));
     promises[antal].format= formatdata("Opstillingskreds", 'opstillingskredse');
@@ -426,6 +453,11 @@ exports.hvor= function(getMap) {
     // storkreds
     promises.push(fetch(dawautil.danUrl("https://api.dataforsyningen.dk/storkredse/reverse",{x: e.latlng.lng, y: e.latlng.lat})));
     promises[antal].format= formatstorkreds;
+    antal++;
+
+    // valglandsdel
+    promises.push(fetch(dawautil.danUrl("https://api.dataforsyningen.dk/valglandsdele/reverse",{x: e.latlng.lng, y: e.latlng.lat})));
+    promises[antal].format= formatvalglandsdel;
     antal++;
 
     // stednavne
@@ -473,8 +505,16 @@ function formatpostnummer(data) {
   return "<li>Postnummer: <a href='https://info.dataforsyningen.dk/postnumre/"+data.nr+"'>" +  data.nr + " " + data.navn + "</a></li>";
 }
 
+function formatafstemningsområde(data) {
+  return "<li>Afstemningsområde: <a href='https://info.dataforsyningen.dk/afstemningsomraader/"+data.kommune.kode+"/"+data.nummer+"'>" + data.navn + " (" +data.nummer + ")" + "</a></li>";
+}
+
 function formatstorkreds(data) {
   return "<li>Storkreds: <a href='https://info.dataforsyningen.dk/storkredse/"+data.nummer+"'>" + data.navn + " (" + data.nummer + ")" + "</a></li>";
+}
+
+function formatvalglandsdel(data) {
+  return "<li>Valglandsdel: <a href='https://info.dataforsyningen.dk/valglandsdele/"+data.bogstav+"'>" + data.navn + " (" + data.bogstav + ")" + "</a></li>";
 }
 
 function formatjordstykke(data) {
@@ -544,286 +584,393 @@ exports.getQueryVariable= function (variable) {
   }
 }
 
+
 /***/ }),
 /* 2 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(global) {/*!
-Copyright (C) 2015 by WebReflection
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
-
-function URLSearchParams(query) {
-  var
-    index, key, value,
-    pairs, i, length,
-    dict = Object.create(null)
-  ;
-  this[secret] = dict;
-  if (!query) return;
-  if (typeof query === 'string') {
-    if (query.charAt(0) === '?') {
-      query = query.slice(1);
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/*! (c) Andrea Giammarchi - ISC */
+var self = {};
+try {
+  (function (URLSearchParams, plus) {
+    if (
+      new URLSearchParams('q=%2B').get('q') !== plus ||
+      new URLSearchParams({q: plus}).get('q') !== plus ||
+      new URLSearchParams([['q', plus]]).get('q') !== plus ||
+      new URLSearchParams('q=\n').toString() !== 'q=%0A' ||
+      new URLSearchParams({q: ' &'}).toString() !== 'q=+%26' ||
+      new URLSearchParams({q: '%zx'}).toString() !== 'q=%25zx'
+    )
+      throw URLSearchParams;
+    self.URLSearchParams = URLSearchParams;
+  }(URLSearchParams, '+'));
+} catch(URLSearchParams) {
+  (function (Object, String, isArray) {'use strict';
+    var create = Object.create;
+    var defineProperty = Object.defineProperty;
+    var find = /[!'\(\)~]|%20|%00/g;
+    var findPercentSign = /%(?![0-9a-fA-F]{2})/g;
+    var plus = /\+/g;
+    var replace = {
+      '!': '%21',
+      "'": '%27',
+      '(': '%28',
+      ')': '%29',
+      '~': '%7E',
+      '%20': '+',
+      '%00': '\x00'
+    };
+    var proto = {
+      append: function (key, value) {
+        appendTo(this._ungap, key, value);
+      },
+      delete: function (key) {
+        delete this._ungap[key];
+      },
+      get: function (key) {
+        return this.has(key) ? this._ungap[key][0] : null;
+      },
+      getAll: function (key) {
+        return this.has(key) ? this._ungap[key].slice(0) : [];
+      },
+      has: function (key) {
+        return key in this._ungap;
+      },
+      set: function (key, value) {
+        this._ungap[key] = [String(value)];
+      },
+      forEach: function (callback, thisArg) {
+        var self = this;
+        for (var key in self._ungap)
+          self._ungap[key].forEach(invoke, key);
+        function invoke(value) {
+          callback.call(thisArg, value, String(key), self);
+        }
+      },
+      toJSON: function () {
+        return {};
+      },
+      toString: function () {
+        var query = [];
+        for (var key in this._ungap) {
+          var encoded = encode(key);
+          for (var
+            i = 0,
+            value = this._ungap[key];
+            i < value.length; i++
+          ) {
+            query.push(encoded + '=' + encode(value[i]));
+          }
+        }
+        return query.join('&');
+      }
+    };
+    for (var key in proto)
+      defineProperty(URLSearchParams.prototype, key, {
+        configurable: true,
+        writable: true,
+        value: proto[key]
+      });
+    self.URLSearchParams = URLSearchParams;
+    function URLSearchParams(query) {
+      var dict = create(null);
+      defineProperty(this, '_ungap', {value: dict});
+      switch (true) {
+        case !query:
+          break;
+        case typeof query === 'string':
+          if (query.charAt(0) === '?') {
+            query = query.slice(1);
+          }
+          for (var
+            pairs = query.split('&'),
+            i = 0,
+            length = pairs.length; i < length; i++
+          ) {
+            var value = pairs[i];
+            var index = value.indexOf('=');
+            if (-1 < index) {
+              appendTo(
+                dict,
+                decode(value.slice(0, index)),
+                decode(value.slice(index + 1))
+              );
+            } else if (value.length){
+              appendTo(
+                dict,
+                decode(value),
+                ''
+              );
+            }
+          }
+          break;
+        case isArray(query):
+          for (var
+            i = 0,
+            length = query.length; i < length; i++
+          ) {
+            var value = query[i];
+            appendTo(dict, value[0], value[1]);
+          }
+          break;
+        case 'forEach' in query:
+          query.forEach(addEach, dict);
+          break;
+        default:
+          for (var key in query)
+            appendTo(dict, key, query[key]);
+      }
     }
-    for (
-      pairs = query.split('&'),
-      i = 0,
-      length = pairs.length; i < length; i++
-    ) {
-      value = pairs[i];
-      index = value.indexOf('=');
-      if (-1 < index) {
-        appendTo(
-          dict,
-          decode(value.slice(0, index)),
-          decode(value.slice(index + 1))
+
+    function addEach(value, key) {
+      appendTo(this, key, value);
+    }
+
+    function appendTo(dict, key, value) {
+      var res = isArray(value) ? value.join(',') : value;
+      if (key in dict)
+        dict[key].push(res);
+      else
+        dict[key] = [res];
+    }
+
+    function decode(str) {
+      return decodeURIComponent(str.replace(findPercentSign, '%25').replace(plus, ' '));
+    }
+
+    function encode(str) {
+      return encodeURIComponent(str).replace(find, replacer);
+    }
+
+    function replacer(match) {
+      return replace[match];
+    }
+
+  }(Object, String, Array.isArray));
+}
+
+(function (URLSearchParamsProto) {
+
+  var iterable = false;
+  try { iterable = !!Symbol.iterator; } catch (o_O) {}
+
+  /* istanbul ignore else */
+  if (!('forEach' in URLSearchParamsProto)) {
+    URLSearchParamsProto.forEach = function forEach(callback, thisArg) {
+      var self = this;
+      var names = Object.create(null);
+      this.toString()
+          .replace(/=[\s\S]*?(?:&|$)/g, '=')
+          .split('=')
+          .forEach(function (name) {
+            if (!name.length || name in names)
+              return;
+            (names[name] = self.getAll(name)).forEach(function(value) {
+              callback.call(thisArg, value, name, self);
+            });
+          });
+    };
+  }
+
+  /* istanbul ignore else */
+  if (!('keys' in URLSearchParamsProto)) {
+    URLSearchParamsProto.keys = function keys() {
+      return iterator(this, function(value, key) { this.push(key); });
+    };
+  }
+
+   /* istanbul ignore else */
+  if (!('values' in URLSearchParamsProto)) {
+    URLSearchParamsProto.values = function values() {
+      return iterator(this, function(value, key) { this.push(value); });
+    };
+  }
+
+  /* istanbul ignore else */
+  if (!('entries' in URLSearchParamsProto)) {
+    URLSearchParamsProto.entries = function entries() {
+      return iterator(this, function(value, key) { this.push([key, value]); });
+    };
+  }
+
+  /* istanbul ignore else */
+  if (iterable && !(Symbol.iterator in URLSearchParamsProto)) {
+    URLSearchParamsProto[Symbol.iterator] = URLSearchParamsProto.entries;
+  }
+
+  /* istanbul ignore else */
+  if (!('sort' in URLSearchParamsProto)) {
+    URLSearchParamsProto.sort = function sort() {
+      var
+        entries = this.entries(),
+        entry = entries.next(),
+        done = entry.done,
+        keys = [],
+        values = Object.create(null),
+        i, key, value
+      ;
+      while (!done) {
+        value = entry.value;
+        key = value[0];
+        keys.push(key);
+        if (!(key in values)) {
+          values[key] = [];
+        }
+        values[key].push(value[1]);
+        entry = entries.next();
+        done = entry.done;
+      }
+      // not the champion in efficiency
+      // but these two bits just do the job
+      keys.sort();
+      for (i = 0; i < keys.length; i++) {
+        this.delete(keys[i]);
+      }
+      for (i = 0; i < keys.length; i++) {
+        key = keys[i];
+        this.append(key, values[key].shift());
+      }
+    };
+  }
+
+  function iterator(self, callback) {
+    var items = [];
+    self.forEach(callback, items);
+    /* istanbul ignore next */
+    return iterable ?
+      items[Symbol.iterator]() :
+      {
+        next: function() {
+          var value = items.shift();
+          return {done: value === void 0, value: value};
+        }
+      };
+  }
+
+  /* istanbul ignore next */
+  (function (Object) {
+    var
+      dP = Object.defineProperty,
+      gOPD = Object.getOwnPropertyDescriptor,
+      createSearchParamsPollute = function (search) {
+        function append(name, value) {
+          URLSearchParamsProto.append.call(this, name, value);
+          name = this.toString();
+          search.set.call(this._usp, name ? ('?' + name) : '');
+        }
+        function del(name) {
+          URLSearchParamsProto.delete.call(this, name);
+          name = this.toString();
+          search.set.call(this._usp, name ? ('?' + name) : '');
+        }
+        function set(name, value) {
+          URLSearchParamsProto.set.call(this, name, value);
+          name = this.toString();
+          search.set.call(this._usp, name ? ('?' + name) : '');
+        }
+        return function (sp, value) {
+          sp.append = append;
+          sp.delete = del;
+          sp.set = set;
+          return dP(sp, '_usp', {
+            configurable: true,
+            writable: true,
+            value: value
+          });
+        };
+      },
+      createSearchParamsCreate = function (polluteSearchParams) {
+        return function (obj, sp) {
+          dP(
+            obj, '_searchParams', {
+              configurable: true,
+              writable: true,
+              value: polluteSearchParams(sp, obj)
+            }
+          );
+          return sp;
+        };
+      },
+      updateSearchParams = function (sp) {
+        var append = sp.append;
+        sp.append = URLSearchParamsProto.append;
+        URLSearchParams.call(sp, sp._usp.search.slice(1));
+        sp.append = append;
+      },
+      verifySearchParams = function (obj, Class) {
+        if (!(obj instanceof Class)) throw new TypeError(
+          "'searchParams' accessed on an object that " +
+          "does not implement interface " + Class.name
         );
-      } else if (value.length){
-        appendTo(
-          dict,
-          decode(value),
-          ''
-        );
+      },
+      upgradeClass = function (Class) {
+        var
+          ClassProto = Class.prototype,
+          searchParams = gOPD(ClassProto, 'searchParams'),
+          href = gOPD(ClassProto, 'href'),
+          search = gOPD(ClassProto, 'search'),
+          createSearchParams
+        ;
+        if (!searchParams && search && search.set) {
+          createSearchParams = createSearchParamsCreate(
+            createSearchParamsPollute(search)
+          );
+          Object.defineProperties(
+            ClassProto,
+            {
+              href: {
+                get: function () {
+                  return href.get.call(this);
+                },
+                set: function (value) {
+                  var sp = this._searchParams;
+                  href.set.call(this, value);
+                  if (sp) updateSearchParams(sp);
+                }
+              },
+              search: {
+                get: function () {
+                  return search.get.call(this);
+                },
+                set: function (value) {
+                  var sp = this._searchParams;
+                  search.set.call(this, value);
+                  if (sp) updateSearchParams(sp);
+                }
+              },
+              searchParams: {
+                get: function () {
+                  verifySearchParams(this, Class);
+                  return this._searchParams || createSearchParams(
+                    this,
+                    new URLSearchParams(this.search.slice(1))
+                  );
+                },
+                set: function (sp) {
+                  verifySearchParams(this, Class);
+                  createSearchParams(this, sp);
+                }
+              }
+            }
+          );
+        }
       }
-    }
-  } else {
-    if (isArray(query)) {
-      for (
-        i = 0,
-        length = query.length; i < length; i++
-      ) {
-        value = query[i];
-        appendTo(dict, value[0], value[1]);
-      }
-    } else {
-      for (key in query) {
-         appendTo(dict, key, query[key]);
-      }
-    }
-  }
-}
+    ;
+    try {
+      upgradeClass(HTMLAnchorElement);
+      if (/^function|object$/.test(typeof URL) && URL.prototype)
+        upgradeClass(URL);
+    } catch (meh) {}
+  }(Object));
 
-var
-  isArray = Array.isArray,
-  URLSearchParamsProto = URLSearchParams.prototype,
-  find = /[!'\(\)~]|%20|%00/g,
-  plus = /\+/g,
-  replace = {
-    '!': '%21',
-    "'": '%27',
-    '(': '%28',
-    ')': '%29',
-    '~': '%7E',
-    '%20': '+',
-    '%00': '\x00'
-  },
-  replacer = function (match) {
-    return replace[match];
-  },
-  iterable = isIterable(),
-  secret = '__URLSearchParams__:' + Math.random()
-;
+}(self.URLSearchParams.prototype, Object));
+/* harmony default export */ __webpack_exports__["default"] = (self.URLSearchParams);
 
-function appendTo(dict, name, value) {
-  if (name in dict) {
-    dict[name].push('' + value);
-  } else {
-    dict[name] = isArray(value) ? value : ['' + value];
-  }
-}
-
-function decode(str) {
-  return decodeURIComponent(str.replace(plus, ' '));
-}
-
-function encode(str) {
-  return encodeURIComponent(str).replace(find, replacer);
-}
-
-function isIterable() {
-  try {
-    return !!Symbol.iterator;
-  } catch(error) {
-    return false;
-  }
-}
-
-URLSearchParamsProto.append = function append(name, value) {
-  appendTo(this[secret], name, value);
-};
-
-URLSearchParamsProto.delete = function del(name) {
-  delete this[secret][name];
-};
-
-URLSearchParamsProto.get = function get(name) {
-  var dict = this[secret];
-  return name in dict ? dict[name][0] : null;
-};
-
-URLSearchParamsProto.getAll = function getAll(name) {
-  var dict = this[secret];
-  return name in dict ? dict[name].slice(0) : [];
-};
-
-URLSearchParamsProto.has = function has(name) {
-  return name in this[secret];
-};
-
-URLSearchParamsProto.set = function set(name, value) {
-  this[secret][name] = ['' + value];
-};
-
-URLSearchParamsProto.forEach = function forEach(callback, thisArg) {
-  var dict = this[secret];
-  Object.getOwnPropertyNames(dict).forEach(function(name) {
-    dict[name].forEach(function(value) {
-      callback.call(thisArg, value, name, this);
-    }, this);
-  }, this);
-};
-
-URLSearchParamsProto.keys = function keys() {
-  var items = [];
-  this.forEach(function(value, name) { items.push(name); });
-  var iterator = {
-    next: function() {
-      var value = items.shift();
-      return {done: value === undefined, value: value};
-    }
-  };
-
-  if (iterable) {
-    iterator[Symbol.iterator] = function() {
-      return iterator;
-    };
-  }
-
-  return iterator;
-};
-
-URLSearchParamsProto.values = function values() {
-  var items = [];
-  this.forEach(function(value) { items.push(value); });
-  var iterator = {
-    next: function() {
-      var value = items.shift();
-      return {done: value === undefined, value: value};
-    }
-  };
-
-  if (iterable) {
-    iterator[Symbol.iterator] = function() {
-      return iterator;
-    };
-  }
-
-  return iterator;
-};
-
-URLSearchParamsProto.entries = function entries() {
-  var items = [];
-  this.forEach(function(value, name) { items.push([name, value]); });
-  var iterator = {
-    next: function() {
-      var value = items.shift();
-      return {done: value === undefined, value: value};
-    }
-  };
-
-  if (iterable) {
-    iterator[Symbol.iterator] = function() {
-      return iterator;
-    };
-  }
-
-  return iterator;
-};
-
-if (iterable) {
-  URLSearchParamsProto[Symbol.iterator] = URLSearchParamsProto.entries;
-}
-
-/*
-URLSearchParamsProto.toBody = function() {
-  return new Blob(
-    [this.toString()],
-    {type: 'application/x-www-form-urlencoded'}
-  );
-};
-*/
-
-URLSearchParamsProto.toJSON = function toJSON() {
-  return {};
-};
-
-URLSearchParamsProto.toString = function toString() {
-  var dict = this[secret], query = [], i, key, name, value;
-  for (key in dict) {
-    name = encode(key);
-    for (
-      i = 0,
-      value = dict[key];
-      i < value.length; i++
-    ) {
-      query.push(name + '=' + encode(value[i]));
-    }
-  }
-  return query.join('&');
-};
-
-module.exports = global.URLSearchParams || URLSearchParams;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
 /* 3 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -831,8 +978,21 @@ module.exports = g;
 
 var required = __webpack_require__(8)
   , qs = __webpack_require__(9)
-  , protocolre = /^([a-z][a-z0-9.+-]*:)?(\/\/)?([\S\s]*)/i
-  , slashes = /^[A-Za-z][A-Za-z0-9+-.]*:\/\//;
+  , slashes = /^[A-Za-z][A-Za-z0-9+-.]*:\/\//
+  , protocolre = /^([a-z][a-z0-9.+-]*:)?(\/\/)?([\\/]+)?([\S\s]*)/i
+  , windowsDriveLetter = /^[a-zA-Z]:/
+  , whitespace = '[\\x09\\x0A\\x0B\\x0C\\x0D\\x20\\xA0\\u1680\\u180E\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200A\\u202F\\u205F\\u3000\\u2028\\u2029\\uFEFF]'
+  , left = new RegExp('^'+ whitespace +'+');
+
+/**
+ * Trim a given string.
+ *
+ * @param {String} str String to trim.
+ * @public
+ */
+function trimLeft(str) {
+  return (str ? str : '').toString().replace(left, '');
+}
 
 /**
  * These are the parse rules for the URL parser, it informs the parser
@@ -849,8 +1009,8 @@ var required = __webpack_require__(8)
 var rules = [
   ['#', 'hash'],                        // Extract from the back.
   ['?', 'query'],                       // Extract from the back.
-  function sanitize(address) {          // Sanitize what is left of the address
-    return address.replace('\\', '/');
+  function sanitize(address, url) {     // Sanitize what is left of the address
+    return isSpecial(url.protocol) ? address.replace(/\\/g, '/') : address;
   },
   ['/', 'pathname'],                    // Extract from the back.
   ['@', 'auth', 1],                     // Extract from the front.
@@ -882,7 +1042,14 @@ var ignore = { hash: 1, query: 1 };
  * @public
  */
 function lolcation(loc) {
-  var location = global && global.location || {};
+  var globalVar;
+
+  if (typeof window !== 'undefined') globalVar = window;
+  else if (typeof global !== 'undefined') globalVar = global;
+  else if (typeof self !== 'undefined') globalVar = self;
+  else globalVar = {};
+
+  var location = globalVar.location || {};
   loc = loc || location;
 
   var finaldestination = {}
@@ -909,6 +1076,24 @@ function lolcation(loc) {
 }
 
 /**
+ * Check whether a protocol scheme is special.
+ *
+ * @param {String} The protocol scheme of the URL
+ * @return {Boolean} `true` if the protocol scheme is special, else `false`
+ * @private
+ */
+function isSpecial(scheme) {
+  return (
+    scheme === 'file:' ||
+    scheme === 'ftp:' ||
+    scheme === 'http:' ||
+    scheme === 'https:' ||
+    scheme === 'ws:' ||
+    scheme === 'wss:'
+  );
+}
+
+/**
  * @typedef ProtocolExtract
  * @type Object
  * @property {String} protocol Protocol matched in the URL, in lowercase.
@@ -920,16 +1105,57 @@ function lolcation(loc) {
  * Extract protocol information from a URL with/without double slash ("//").
  *
  * @param {String} address URL we want to extract from.
+ * @param {Object} location
  * @return {ProtocolExtract} Extracted information.
  * @private
  */
-function extractProtocol(address) {
+function extractProtocol(address, location) {
+  address = trimLeft(address);
+  location = location || {};
+
   var match = protocolre.exec(address);
+  var protocol = match[1] ? match[1].toLowerCase() : '';
+  var forwardSlashes = !!match[2];
+  var otherSlashes = !!match[3];
+  var slashesCount = 0;
+  var rest;
+
+  if (forwardSlashes) {
+    if (otherSlashes) {
+      rest = match[2] + match[3] + match[4];
+      slashesCount = match[2].length + match[3].length;
+    } else {
+      rest = match[2] + match[4];
+      slashesCount = match[2].length;
+    }
+  } else {
+    if (otherSlashes) {
+      rest = match[3] + match[4];
+      slashesCount = match[3].length;
+    } else {
+      rest = match[4]
+    }
+  }
+
+  if (protocol === 'file:') {
+    if (slashesCount >= 2) {
+      rest = rest.slice(2);
+    }
+  } else if (isSpecial(protocol)) {
+    rest = match[4];
+  } else if (protocol) {
+    if (forwardSlashes) {
+      rest = rest.slice(2);
+    }
+  } else if (slashesCount >= 2 && isSpecial(location.protocol)) {
+    rest = match[4];
+  }
 
   return {
-    protocol: match[1] ? match[1].toLowerCase() : '',
-    slashes: !!match[2],
-    rest: match[3]
+    protocol: protocol,
+    slashes: forwardSlashes || isSpecial(protocol),
+    slashesCount: slashesCount,
+    rest: rest
   };
 }
 
@@ -942,6 +1168,8 @@ function extractProtocol(address) {
  * @private
  */
 function resolve(relative, base) {
+  if (relative === '') return base;
+
   var path = (base || '/').split('/').slice(0, -1).concat(relative.split('/'))
     , i = path.length
     , last = path[i - 1]
@@ -977,11 +1205,13 @@ function resolve(relative, base) {
  *
  * @constructor
  * @param {String} address URL we want to parse.
- * @param {Object|String} location Location defaults for relative paths.
- * @param {Boolean|Function} parser Parser for the query string.
+ * @param {Object|String} [location] Location defaults for relative paths.
+ * @param {Boolean|Function} [parser] Parser for the query string.
  * @private
  */
 function Url(address, location, parser) {
+  address = trimLeft(address);
+
   if (!(this instanceof Url)) {
     return new Url(address, location, parser);
   }
@@ -1015,7 +1245,7 @@ function Url(address, location, parser) {
   //
   // Extract protocol information before running the instructions.
   //
-  extracted = extractProtocol(address || '');
+  extracted = extractProtocol(address || '', location);
   relative = !extracted.protocol && !extracted.slashes;
   url.slashes = extracted.slashes || relative && location.slashes;
   url.protocol = extracted.protocol || location.protocol || '';
@@ -1025,13 +1255,22 @@ function Url(address, location, parser) {
   // When the authority component is absent the URL starts with a path
   // component.
   //
-  if (!extracted.slashes) instructions[3] = [/(.*)/, 'pathname'];
+  if (
+    extracted.protocol === 'file:' && (
+      extracted.slashesCount !== 2 || windowsDriveLetter.test(address)) ||
+    (!extracted.slashes &&
+      (extracted.protocol ||
+        extracted.slashesCount < 2 ||
+        !isSpecial(url.protocol)))
+  ) {
+    instructions[3] = [/(.*)/, 'pathname'];
+  }
 
   for (; i < instructions.length; i++) {
     instruction = instructions[i];
 
     if (typeof instruction === 'function') {
-      address = instruction(address);
+      address = instruction(address, url);
       continue;
     }
 
@@ -1086,6 +1325,14 @@ function Url(address, location, parser) {
   }
 
   //
+  // Default to a / for pathname if none exists. This normalizes the URL
+  // to always have a /
+  //
+  if (url.pathname.charAt(0) !== '/' && isSpecial(url.protocol)) {
+    url.pathname = '/' + url.pathname;
+  }
+
+  //
   // We should not add port numbers if they are already the default port number
   // for a given protocol. As the host also contains the port number we're going
   // override it with the hostname which contains no port number.
@@ -1101,11 +1348,11 @@ function Url(address, location, parser) {
   url.username = url.password = '';
   if (url.auth) {
     instruction = url.auth.split(':');
-    url.username = instruction[0] || '';
+    url.username = instruction[0];
     url.password = instruction[1] || '';
   }
 
-  url.origin = url.protocol && url.host && url.protocol !== 'file:'
+  url.origin = url.protocol !== 'file:' && isSpecial(url.protocol) && url.host
     ? url.protocol +'//'+ url.host
     : 'null';
 
@@ -1188,8 +1435,15 @@ function set(part, value, fn) {
       }
       break;
 
-    default:
-      url[part] = value;
+    case 'username':
+    case 'password':
+      url[part] = encodeURIComponent(value);
+      break;
+
+    case 'auth':
+      var splits = value.split(':');
+      url.username = splits[0];
+      url.password = splits.length === 2 ? splits[1] : '';
   }
 
   for (var i = 0; i < rules.length; i++) {
@@ -1198,7 +1452,9 @@ function set(part, value, fn) {
     if (ins[4]) url[ins[1]] = url[ins[1]].toLowerCase();
   }
 
-  url.origin = url.protocol && url.host && url.protocol !== 'file:'
+  url.auth = url.password ? url.username +':'+ url.password : url.username;
+
+  url.origin = url.protocol !== 'file:' && isSpecial(url.protocol) && url.host
     ? url.protocol +'//'+ url.host
     : 'null';
 
@@ -1223,11 +1479,16 @@ function toString(stringify) {
 
   if (protocol && protocol.charAt(protocol.length - 1) !== ':') protocol += ':';
 
-  var result = protocol + (url.slashes ? '//' : '');
+  var result =
+    protocol +
+    ((url.protocol && url.slashes) || isSpecial(url.protocol) ? '//' : '');
 
   if (url.username) {
     result += url.username;
     if (url.password) result += ':'+ url.password;
+    result += '@';
+  } else if (url.password) {
+    result += ':'+ url.password;
     result += '@';
   }
 
@@ -1249,14 +1510,15 @@ Url.prototype = { set: set, toString: toString };
 //
 Url.extractProtocol = extractProtocol;
 Url.location = lolcation;
+Url.trimLeft = trimLeft;
 Url.qs = qs;
 
 module.exports = Url;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1487,15 +1749,15 @@ exports.parseUrl = function (str, opts) {
 
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var kort= __webpack_require__(0)
-    , URL = __webpack_require__(4)
-    , queryString = __webpack_require__(5)
+    , URL = __webpack_require__(3)
+    , queryString = __webpack_require__(4)
     , vis= __webpack_require__(13);
 
 function main() { 
@@ -1536,8 +1798,9 @@ function main() {
 
 main();
 
+
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1614,6 +1877,33 @@ initklassifikationskoder();
 exports.klassifikationskoder= klassifikationskoder;
 
 /***/ }),
+/* 7 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1672,11 +1962,30 @@ var has = Object.prototype.hasOwnProperty
  * Decode a URI encoded string.
  *
  * @param {String} input The URI encoded string.
- * @returns {String} The decoded string.
+ * @returns {String|Null} The decoded string.
  * @api private
  */
 function decode(input) {
-  return decodeURIComponent(input.replace(/\+/g, ' '));
+  try {
+    return decodeURIComponent(input.replace(/\+/g, ' '));
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * Attempts to encode a given input.
+ *
+ * @param {String} input The string that needs to be encoded.
+ * @returns {String|Null} The encoded string.
+ * @api private
+ */
+function encode(input) {
+  try {
+    return encodeURIComponent(input);
+  } catch (e) {
+    return null;
+  }
 }
 
 /**
@@ -1687,7 +1996,7 @@ function decode(input) {
  * @api public
  */
 function querystring(query) {
-  var parser = /([^=?&]+)=?([^&]*)/g
+  var parser = /([^=?#&]+)=?([^&]*)/g
     , result = {}
     , part;
 
@@ -1700,7 +2009,10 @@ function querystring(query) {
     // methods like `toString` or __proto__ are not overriden by malicious
     // querystrings.
     //
-    if (key in result) continue;
+    // In the case if failed decoding, we want to omit the key/value pairs
+    // from the result.
+    //
+    if (key === null || value === null || key in result) continue;
     result[key] = value;
   }
 
@@ -1739,7 +2051,15 @@ function querystringify(obj, prefix) {
         value = '';
       }
 
-      pairs.push(encodeURIComponent(key) +'='+ encodeURIComponent(value));
+      key = encode(key);
+      value = encode(value);
+
+      //
+      // If we failed to encode the strings, we should bail out as we don't
+      // want to add invalid strings to the query.
+      //
+      if (key === null || value === null) continue;
+      pairs.push(key +'='+ value);
     }
   }
 
@@ -1973,8 +2293,8 @@ module.exports = function (encodedURI) {
 
 var kort= __webpack_require__(0)
     , util = __webpack_require__(1)
-    , URL = __webpack_require__(4)
-    , queryString = __webpack_require__(5)
+    , URL = __webpack_require__(3)
+    , queryString = __webpack_require__(4)
     , bbr= __webpack_require__(14);
 
 var map= null;
@@ -2076,7 +2396,7 @@ exports.visLag= function(lag) {
     let miljø= query.m;
     if (!miljø) miljø= 'dawa';
     //url.host= url.host.replace('vis',miljø);
-	url.host = 'api.dataforsyningen.dk';
+    url.host = 'api.dataforsyningen.dk';
     let arr= url.pathname.split('/');
 
     query.format= 'geojson';
@@ -2128,7 +2448,7 @@ function danLabel2(overskrift, href, label) {
     tekst= overskrift + "<br/>" + label;
   } 
   else {
-    tekst= "<a href='" + href.replace('dawa','info') + "'>" + label + "</a>";
+    tekst= "<a href='" + href.replace('api','info') + "'>" + label + "</a>";
   }
   return tekst;
 }

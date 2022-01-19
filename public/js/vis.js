@@ -1,7 +1,7 @@
 "use strict";
 
-var kort= require('dawa-kort')
-    , util = require('dawa-util')
+var kort= require('@dawadk/dawa-kort')
+    , util = require('@dawadk/dawa-util')
     , URL = require('url-parse')
     , queryString = require('query-string')
     , bbr= require('./bbrkodelister.js');

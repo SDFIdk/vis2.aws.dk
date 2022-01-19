@@ -8,24 +8,26 @@
     "env": "env",
     "lint": "jshint index.js",
     "devbuild": "npm install && cd public && npm run devbuild",
-    "build": "npm install --production && cd public && npm install --production"
+    "build": "npm install --production && cd public && npm install --production && webpack --config main.config.js && webpack --config multi.config.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Dataforsyningen/find2.aws.dk.git"
+    "url": "git+https://github.com/Dataforsyningen/vis2.aws.dk.git"
   },
   "author": "Finn Jordal",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Dataforsyningen/find2.aws.dk/issues"
+    "url": "https://github.com/Dataforsyningen/vis2.aws.dk/issues"
   },
-  "homepage": "https://github.com/Dataforsyningen/find2.aws.dk#readme",
+  "homepage": "https://github.com/Dataforsyningen/vis2.aws.dk#readme",
   "dependencies": {
+    "@dawadk/kf-getticket": "^1.0.1",
     "express": "^4.13.1",
     "g": "^2.0.1",
-    "@dawadk/kf-getticket": "^1.0.1",
     "request": "^2.88.0",
-    "request-promise": "^4.2.1"
+    "request-promise": "^4.2.1",
+    "webpack": "^5.66.0",
+    "webpack-cli": "^4.9.1"
   },
   "devDependencies": {
     "jshint": "^2.10.2"

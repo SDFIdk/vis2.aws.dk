@@ -1,6 +1,6 @@
 "use strict";
 
-var kort= require('dawa-kort')
+var kort= require('@dawadk/dawa-kort')
     , URL = require('url-parse')
     , queryString = require('query-string')
     , vis= require('./vis.js');
