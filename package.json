@@ -1,6 +1,6 @@
 {
   "name": "vis2.aws.dk",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Vis DAWA data på et kort",
   "main": "index.js",
   "scripts": {
